@@ -28,6 +28,7 @@ interface Brand {
 
 @Component({
   selector: 'app-content',
+  standalone: true,
   imports: [CommonModule, FormsModule],
   templateUrl: './content.component.html',
   styleUrls: ['./content.component.css']

@@ -35,6 +35,38 @@
       </div>
     </div>
   </div>
+  <!-- Login Modal -->
+  <div *ngIf="showLoginModal" class="modal-backdrop">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Iniciar Sesión</h3>
+        <button class="close-btn" (click)="closeLoginModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <form [formGroup]="loginForm" (ngSubmit)="login()">
+          <div class="form-group">
+            <label for="nombreUsuario">Usuario</label>
+            <input type="text" id="nombreUsuario" formControlName="nombreUsuario" class="form-control">
+            <div *ngIf="loginForm.get('nombreUsuario')?.invalid && loginForm.get('nombreUsuario')?.touched" class="error-text">
+              Este campo es obligatorio
+            </div>
+          </div>
+          <div class="form-group">
+            <label for="contrasena">Contraseña</label>
+            <input type="password" id="contrasena" formControlName="contrasena" class="form-control">
+            <div *ngIf="loginForm.get('contrasena')?.invalid && loginForm.get('contrasena')?.touched" class="error-text">
+              Este campo es obligatorio
+            </div>
+          </div>
+          <div *ngIf="error" class="error-message">{{ error }}</div>
+          <div class="form-actions">
+            <button type="submit" class="submit-btn" [disabled]="loginForm.invalid">Entrar</button>
+            <button type="button" class="cancel-btn" (click)="closeLoginModal()">Cancelar</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
 
   <!-- Secondary Navigation -->
   <div class="secondary-nav">

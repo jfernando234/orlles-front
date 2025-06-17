@@ -4,7 +4,8 @@ import { CommonModule } from '@angular/common';
 
 @Component({
   selector: 'app-footer',
-  imports: [CommonModule, FormsModule],
+  standalone: true,
+  imports: [FormsModule, CommonModule],
   templateUrl: './footer.component.html',
   styleUrls: ['./footer.component.css']
 })
