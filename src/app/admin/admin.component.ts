@@ -1,4 +1,4 @@
-import { Component, NgModule } from '@angular/core';
+import { Component } from '@angular/core';
 import { ProductoComponent } from "./producto/producto.component";
 import { ProveedoresComponent } from './proveedores/proveedores.component';
 import { ClientesComponent } from './clientes/clientes.component';
@@ -15,7 +15,7 @@ import { Router } from '@angular/router';
 export class AdminComponent {
   constructor(private router: Router) {}
 
-  mostrarProductoComponent = true;
+  mostrarProductoComponent = false;
   mostrarProveedoresComponent = false;
   mostrarClientesComponent = false;
 
@@ -35,6 +35,8 @@ export class AdminComponent {
     this.mostrarProveedoresComponent = false;
     this.mostrarClientesComponent = true;
   }
+
+
   logout() {
     // Aquí puedes implementar la lógica de cierre de sesión
     console.log('Cerrando sesión...');
@@ -46,9 +48,3 @@ export class AdminComponent {
     this.router.navigate(['/login']);
   }
 }
-NgModule({
-  declarations: [AdminComponent],
-  imports: [CommonModule, ProductoComponent, ProveedoresComponent, ClientesComponent],
-  exports: [AdminComponent],
-  providers: []
-})

@@ -1,6 +1,16 @@
 import { Component, OnInit, Inject } from '@angular/core';
 import { CrudService } from '../crud/producto.service';
 
+export interface Producto {
+    ID_producto?: number; // Opcional, ya que puede ser autogenerado
+    nombre: string;
+    marca: string;
+    especificaciones: string;
+    precio: number;
+    idproveedor: number;
+    Stock?: number; 
+}
+
 @Component({
   selector: 'app-producto',
   templateUrl: './producto.component.html',
@@ -49,4 +59,5 @@ export class ProductoComponent implements OnInit {
     this.selectedId = null;
   }
 }
+
 
