@@ -4,27 +4,29 @@ import { AppRoutingModule } from './app-routing.module';
 import { AuthModule } from './auth/auth.module';
 import { HttpClientModule } from '@angular/common/http';
 import { FormsModule, ReactiveFormsModule } from '@angular/forms';
+import { RouterModule } from '@angular/router'; 
 import { AppComponent } from './app.component';
 import { HomeComponent } from './pages/home/home.component';
-import { ContentComponent } from './core/content/content.component';
-import { FooterComponent } from './core/footer/footer.component';
-import { HeaderComponent } from './core/header/header.component';
 import { CommonModule } from '@angular/common';
+import { CoreModule } from './core/core.module';
 
 @NgModule({
+  declarations: [
+    AppComponent,
+    HomeComponent
+  ],
   imports: [
     BrowserModule,
     AppRoutingModule,
     HttpClientModule,
     FormsModule,
     ReactiveFormsModule,
+    RouterModule,
     CommonModule,
-    // Importamos los componentes standalone
-    AppComponent,
-    HomeComponent,
-    ContentComponent,
-    FooterComponent,
-    HeaderComponent
-  ],  providers: [],
+    CoreModule,
+    AuthModule
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
 })
 export class AppModule { }

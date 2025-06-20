@@ -1,6 +1,4 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 
 interface Product {
   id: number;
@@ -28,8 +26,6 @@ interface Brand {
 
 @Component({
   selector: 'app-content',
-  standalone: true,
-  imports: [CommonModule, FormsModule],
   templateUrl: './content.component.html',
   styleUrls: ['./content.component.css']
 })

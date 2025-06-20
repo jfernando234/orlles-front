@@ -1,9 +1,18 @@
 <div class="login-container">
-  <h2>Iniciar Sesión</h2>
-  <form (ngSubmit)="login()" [formGroup]="loginForm">
-    <input type="text" formControlName="nombreUsuario" placeholder="Usuario">
-    <input type="password" formControlName="contrasena" placeholder="Contraseña">
-    <button type="submit">Entrar</button>
+  <div class="login-header">
+    <img src="assets/images/logo.png" alt="Imporllesinc Logo" class="login-logo">
+    <h2>Iniciar Sesión</h2>
+  </div>
+  <form (ngSubmit)="login()" [formGroup]="loginForm" class="login-form">
+    <div class="form-group">
+      <label for="nombreUsuario">Usuario o Correo electrónico</label>
+      <input type="text" id="nombreUsuario" formControlName="nombreUsuario" placeholder="Ingresa tu usuario o correo" class="form-control">
+    </div>
+    <div class="form-group">
+      <label for="contrasena">Contraseña</label>
+      <input type="password" id="contrasena" formControlName="contrasena" placeholder="Ingresa tu contraseña" class="form-control">
+    </div>
+    <button type="submit" class="login-btn" [disabled]="loginForm.invalid">Iniciar Sesión</button>
+    <p *ngIf="error" class="error-message">{{ error }}</p>
   </form>
-  <p *ngIf="error" class="error">{{ error }}</p>
 </div>
