@@ -1,5 +1,5 @@
 import { Component, OnInit, Inject } from '@angular/core';
-import { CrudService } from '../crud/producto.service';
+
 
 @Component({
   selector: 'app-producto',
@@ -12,17 +12,17 @@ export class ProductoComponent implements OnInit {
   editMode = false;
   selectedId: number | null = null;
 
-  constructor(@Inject(CrudService) private crud: CrudService) {}
+  //constructor(@Inject(CrudService) private crud: CrudService) {}
 
   ngOnInit(): void {
-    this.loadProductos();
-  }
 
+  }
+  /*
   loadProductos(): void {
     this.productos = this.crud.getAll('productos');
-  }
+  }*/
 
-  onSubmit(): void {
+  /*onSubmit(): void {
     if (this.editMode && this.selectedId !== null) {
       this.crud.update('productos', this.selectedId, this.formData);
     } else {
@@ -41,7 +41,7 @@ export class ProductoComponent implements OnInit {
     this.crud.delete('productos', id);
     this.loadProductos();
     this.resetForm();
-  }
+  }*/
 
   resetForm(): void {
     this.formData = {};
