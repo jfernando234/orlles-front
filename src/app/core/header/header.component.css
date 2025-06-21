@@ -926,36 +926,31 @@
 /* === ESTILOS PARA EL MODAL DE CHECKOUT === */
 
 .checkout-modal-content {
-  background: white;
-  border-radius: 12px;
-  width: 95%;
-  max-width: 1200px;
-  min-width: 1000px;
-  max-height: 90vh;
-  min-height: 600px;
-  overflow: hidden;
-  position: relative;
   display: flex;
   flex-direction: column;
+  width: 90vw;
+  max-width: 1200px;
+  max-height: 90vh;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+  overflow: hidden;
 }
 
 .checkout-modal-header {
-  background: #f8f9fa;
-  padding: 20px 24px;
-  border-bottom: 1px solid #e9ecef;
   display: flex;
   justify-content: space-between;
   align-items: center;
-  position: sticky;
-  top: 0;
-  z-index: 10;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e5e5;
+  background: #f8f9fa;
 }
 
 .checkout-modal-header h2 {
   margin: 0;
   font-size: 24px;
   font-weight: 600;
-  color: #212529;
+  color: #333;
 }
 
 .checkout-modal-body {
@@ -964,399 +959,249 @@
   overflow: hidden;
 }
 
+.checkout-main-content {
+  flex: 2;
+  padding: 24px;
+  overflow-y: auto;
+}
+
+.checkout-summary {
+  flex: 1;
+  background: #f8f9fa;
+  padding: 24px;
+  border-left: 1px solid #e5e5e5;
+  overflow-y: auto;
+}
+
 /* Sección de dirección */
 .address-section {
-  background: #f8f9fa;
-  padding: 20px 24px;
-  border-bottom: 1px solid #e9ecef;
+  margin-bottom: 24px;
+  padding: 16px;
+  background: #fff;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
+}
+
+.address-row {
   display: flex;
   align-items: center;
   gap: 12px;
 }
 
-.address-icon i {
-  font-size: 18px;
-  color: #6c757d;
+.address-icon {
+  font-size: 20px;
+  color: #666;
 }
 
 .address-content {
   flex: 1;
   display: flex;
-  align-items: center;
-  gap: 12px;
+  flex-direction: column;
+  gap: 4px;
 }
 
-.address-content label {
+.address-label {
   font-weight: 500;
-  color: #495057;
-  margin: 0;
+  color: #333;
 }
 
-.address-input {
-  flex: 1;
-  border: 1px solid #ced4da;
-  border-radius: 6px;
-  padding: 8px 12px;
+.address-text {
+  color: #666;
   font-size: 14px;
 }
 
 .change-address-btn {
-  background: none;
-  border: none;
-  color: #007bff;
-  font-size: 14px;
-  cursor: pointer;
   display: flex;
   align-items: center;
-  gap: 4px;
-  padding: 4px 8px;
-  border-radius: 4px;
-  transition: background-color 0.2s ease;
+  gap: 6px;
+  padding: 8px 16px;
+  background: #007bff;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  transition: background-color 0.2s;
 }
 
 .change-address-btn:hover {
-  background: rgba(0, 123, 255, 0.1);
+  background: #0056b3;
 }
 
 /* Sección de entrega */
-.delivery-section {
-  flex: 1;
-  padding: 24px;
-  overflow-y: auto;
-}
-
 .delivery-section h3 {
-  margin: 0 0 20px 0;
+  margin: 0 0 16px 0;
   font-size: 18px;
   font-weight: 600;
-  color: #212529;
+  color: #333;
 }
 
-/* Opciones de entrega */
 .delivery-option {
-  border: 2px solid #e9ecef;
-  border-radius: 8px;
-  padding: 16px;
-  margin-bottom: 12px;
   display: flex;
   align-items: flex-start;
   gap: 12px;
+  padding: 16px;
+  margin-bottom: 12px;
+  border: 1px solid #e5e5e5;
+  border-radius: 8px;
   cursor: pointer;
-  transition: all 0.3s ease;
-  position: relative;
+  transition: all 0.2s;
 }
 
 .delivery-option:hover {
   border-color: #007bff;
-  box-shadow: 0 2px 8px rgba(0, 123, 255, 0.1);
+  background: #f8f9ff;
 }
 
 .delivery-option.selected {
   border-color: #007bff;
-  background: rgba(0, 123, 255, 0.05);
-}
-
-.delivery-option.selected::before {
-  content: '✓';
-  position: absolute;
-  top: 8px;
-  right: 8px;
-  background: #007bff;
-  color: white;
-  width: 20px;
-  height: 20px;
-  border-radius: 50%;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  font-size: 12px;
-  font-weight: bold;
+  background: #e7f3ff;
 }
 
 .delivery-icon {
-  width: 40px;
-  height: 40px;
-  background: #f8f9fa;
-  border-radius: 8px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  flex-shrink: 0;
-}
-
-.delivery-icon i {
-  font-size: 18px;
-  color: #6c757d;
+  font-size: 20px;
+  color: #666;
+  margin-top: 4px;
 }
 
 .delivery-details h4 {
   margin: 0 0 4px 0;
   font-size: 16px;
-  font-weight: 600;
-  color: #212529;
+  font-weight: 500;
+  color: #333;
 }
 
 .delivery-details p {
   margin: 0;
   font-size: 14px;
-  color: #6c757d;
+  color: #666;
 }
 
-.delivery-details .unavailable {
-  color: #dc3545;
-  font-weight: 500;
+/* Modal de dirección */
+.address-modal-backdrop {
+  z-index: 1060;
 }
 
-.delivery-details .why-not {
-  color: #007bff;
-  text-decoration: underline;
-  cursor: pointer;
-  font-size: 13px;
+.address-modal-content {
+  width: 90vw;
+  max-width: 600px;
+  background: white;
+  border-radius: 12px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.3);
+  overflow: hidden;
 }
 
-.change-btn {
-  background: none;
-  border: none;
-  color: #007bff;
-  font-size: 13px;
-  cursor: pointer;
-  padding: 0;
-  text-decoration: underline;
-  margin-top: 4px;
-}
-
-/* Resumen del checkout */
-.checkout-summary {
-  width: 350px;
-  background: #f8f9fa;
-  padding: 24px;
-  border-left: 1px solid #e9ecef;
-  overflow-y: auto;
-  flex-shrink: 0;
-}
-
-.checkout-summary h3 {
-  margin: 0 0 20px 0;
-  font-size: 18px;
-  font-weight: 600;
-  color: #212529;
-}
-
-.summary-item {
+.address-modal-header {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  margin-bottom: 12px;
-  font-size: 14px;
+  padding: 20px 24px;
+  border-bottom: 1px solid #e5e5e5;
+  background: #f8f9fa;
 }
 
-.summary-item.discount .discount-amount {
-  color: #dc3545;
-  font-weight: 500;
-}
-
-.summary-divider {
-  height: 1px;
-  background: #dee2e6;
-  margin: 16px 0;
-}
-
-.summary-item.total {
-  font-size: 16px;
-  margin-bottom: 8px;
-}
-
-.summary-item.total-with-service {
-  font-size: 16px;
-  margin-bottom: 24px;
-}
-
-.service-total {
+.address-modal-title {
   display: flex;
   align-items: center;
   gap: 8px;
-}
-
-.service-icons {
-  display: flex;
-  gap: 4px;
-}
-
-.payment-icon {
-  width: 24px;
-  height: 16px;
-  object-fit: contain;
-}
-
-.service-price {
+  font-size: 18px;
   font-weight: 600;
-  color: #dc3545;
+  color: #333;
 }
 
-.payment-btn {
+.address-modal-body {
+  padding: 24px;
+}
+
+.address-subtitle {
+  margin: 0 0 20px 0;
+  color: #666;
+  font-size: 14px;
+}
+
+.address-form .form-group {
+  margin-bottom: 16px;
+}
+
+.address-form label {
+  display: block;
+  margin-bottom: 6px;
+  font-weight: 500;
+  color: #333;
+  font-size: 14px;
+}
+
+.address-form .form-control {
   width: 100%;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 6px;
+  font-size: 14px;
+  transition: border-color 0.2s;
+}
+
+.address-form .form-control:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.25);
+}
+
+.address-modal-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 16px 24px;
+  border-top: 1px solid #e5e5e5;
+  background: #f8f9fa;
+}
+
+.btn {
+  padding: 10px 20px;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  font-weight: 500;
+  transition: all 0.2s;
+}
+
+.btn-link {
+  background: none;
+  color: #666;
+  text-decoration: underline;
+}
+
+.btn-link:hover {
+  color: #333;
+}
+
+.btn-primary {
   background: #007bff;
   color: white;
-  border: none;
-  border-radius: 8px;
-  padding: 12px 16px;
-  font-size: 16px;
-  font-weight: 600;
-  cursor: pointer;
-  transition: background-color 0.3s ease;
 }
 
-.payment-btn:hover:not(:disabled) {
+.btn-primary:hover {
   background: #0056b3;
 }
 
-.payment-btn:disabled {
-  background: #6c757d;
-  cursor: not-allowed;
-}
-
-/* Controles de paginación */
-.pagination-controls {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 16px;
-  padding: 20px 0;
-  border-top: 1px solid #e9ecef;
-  margin-top: auto;
-  flex-shrink: 0;
-}
-
-.pagination-btn {
-  background: #f8f9fa;
-  border: 1px solid #dee2e6;
-  border-radius: 6px;
-  padding: 8px 12px;
-  cursor: pointer;
-  transition: all 0.2s ease;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  min-width: 40px;
-  height: 40px;
-}
-
-.pagination-btn:hover:not(:disabled) {
-  background: #e9ecef;
-  border-color: #adb5bd;
-}
-
-.pagination-btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
-
-.pagination-info {
-  font-size: 14px;
-  color: #6c757d;
-  font-weight: 500;
-}
-
-/* Responsive para el modal de checkout */
+/* Responsive */
 @media (max-width: 768px) {
-  .checkout-modal-content {
-    width: 98%;
-    height: 95vh;
-    max-height: 95vh;
-  }
-  
-  .checkout-modal_body {
+  .checkout-modal-body {
     flex-direction: column;
   }
   
   .checkout-summary {
-    width: 100%;
     border-left: none;
-    border-top: 1px solid #e9ecef;
+    border-top: 1px solid #e5e5e5;
   }
   
-  .delivery-section {
-    flex: none;
-    max-height: 50vh;
-  }
-  
-  .address-content {
-    flex-wrap: wrap;
+  .address-row {
+    flex-direction: column;
+    align-items: flex-start;
     gap: 8px;
   }
   
-  .address-input {
-    width: 100%;
-    margin-top: 8px;
-  }
-}
-
-/* Responsive adicional para el modal de checkout */
-@media (max-width: 1100px) {
-  .checkout-modal-content {
-    min-width: 95%;
-    width: 98%;
-  }
-}
-
-@media (max-width: 768px) {
-  .checkout-modal-content {
-    min-width: auto;
-    min-height: auto;
-  }
-}
-
-/* Responsive para el modal del carrito */
-@media (max-width: 1100px) {
-  .cart-modal-content {
-    min-width: 95%;
-    width: 98%;
-  }
-}
-
-@media (max-width: 768px) {
-  .cart-modal-content {
-    width: 98%;
-    height: 95vh;
-    max-height: 95vh;
-    min-width: auto;
-    min-height: auto;
-  }
-  
-  .cart-modal-body {
-    flex-direction: column;
-  }
-  
-  .cart-main-content {
-    flex: none;
-    max-height: 50vh;
-  }
-  
-  .order-summary {
-    width: 100%;
-    border-left: none;
-    border-top: 1px solid #e9ecef;
-  }
-}
-
-/* Ajustes finales para consistencia de tamaño */
-.cart-modal-content, .checkout-modal-content {
-  /* Forzar dimensiones consistentes */
-  box-sizing: border-box;
-}
-
-/* Asegurar que el modal siempre tenga el tamaño correcto */
-@media (min-width: 1100px) {
-  .cart-modal-content, .checkout-modal-content {
-    width: 1000px !important;
-    min-width: 1000px !important;
-  }
-}
-
-/* Para pantallas entre 768px y 1100px */
-@media (min-width: 769px) and (max-width: 1099px) {
-  .cart-modal-content, .checkout-modal-content {
-    width: 95% !important;
-    min-width: 700px !important;
+  .change-address-btn {
+    align-self: flex-end;
   }
 }

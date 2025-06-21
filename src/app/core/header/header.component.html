@@ -348,7 +348,6 @@
       </div>
     </div>
   </div>
-
   <!-- Modal de Checkout -->
   <div *ngIf="showCheckoutModal" class="modal-backdrop">
     <div class="checkout-modal-content">
@@ -359,124 +358,188 @@
       </div>
       
       <div class="checkout-modal-body">
-        <!-- Sección de dirección -->
-        <div class="address-section">
-          <div class="address-icon">
-            <i class="fas fa-map-marker-alt"></i>
+        <!-- Contenido principal (lado izquierdo) -->
+        <div class="checkout-main-content">
+          <!-- Sección de dirección -->
+          <div class="address-section">
+            <div class="address-row">
+              <div class="address-icon">
+                <i class="fas fa-map-marker-alt"></i>
+              </div>
+              <div class="address-content">
+                <span class="address-label">Dirección -</span>
+                <span class="address-text">{{deliveryAddress || 'Asd, 1232323, Acochaca, Ancash'}}</span>
+              </div>
+              <button class="change-address-btn" (click)="openAddressModal()">
+                <i class="fas fa-edit"></i>
+                Cambiar
+              </button>
+            </div>
           </div>
-          <div class="address-content">
-            <label>Dirección -</label>
-            <input 
-              type="text" 
-              [(ngModel)]="deliveryAddress"
-              placeholder="Asd, 1232323,Acochaca,Ancash"
-              class="address-input">
-            <button class="change-address-btn">
-              <i class="fas fa-edit"></i>
-              Cambiar
-            </button>
+
+          <!-- Sección de tipo de entrega -->
+          <div class="delivery-section">
+            <h3>Elige un tipo de entrega</h3>
+            
+            <!-- Opción: Retira tu pedido -->
+            <div class="delivery-option" 
+                 [class.selected]="selectedDeliveryType === 'pickup'"
+                 (click)="selectDeliveryType('pickup')">
+              <div class="delivery-icon">
+                <i class="fas fa-store"></i>
+              </div>
+              <div class="delivery-details">
+                <h4>Retira tu pedido</h4>
+                <p>No hay tiendas cercanas disponibles en la zona seleccionada</p>
+                <button class="change-btn">Cambiar</button>
+              </div>
+            </div>
+
+            <!-- Opción: Envío Express -->
+            <div class="delivery-option" 
+                 [class.selected]="selectedDeliveryType === 'express'"
+                 (click)="selectDeliveryType('express')">
+              <div class="delivery-icon">
+                <i class="fas fa-shipping-fast"></i>
+              </div>
+              <div class="delivery-details">
+                <h4>Envío Express</h4>
+                <p class="unavailable">No disponible</p>
+                <p class="why-not">¿Por qué?</p>
+              </div>
+            </div>
+
+            <!-- Opción: Envío en fecha programada -->
+            <div class="delivery-option" 
+                 [class.selected]="selectedDeliveryType === 'scheduled'"
+                 (click)="selectDeliveryType('scheduled')">
+              <div class="delivery-icon">
+                <i class="fas fa-calendar-alt"></i>
+              </div>
+              <div class="delivery-details">
+                <h4>Envío en fecha programada</h4>
+                <p class="unavailable">No disponible</p>
+                <p class="why-not">¿Por qué?</p>
+              </div>
+            </div>
+
+            <!-- Opción: Envío en rango de fechas -->
+            <div class="delivery-option" 
+                 [class.selected]="selectedDeliveryType === 'range'"
+                 (click)="selectDeliveryType('range')">
+              <div class="delivery-icon">
+                <i class="fas fa-calendar-week"></i>
+              </div>
+              <div class="delivery-details">
+                <h4>Envío en rango de fechas</h4>
+                <p class="unavailable">No disponible</p>
+                <p class="why-not">¿Por qué?</p>
+              </div>
+            </div>
           </div>
         </div>
-
-        <!-- Sección de tipo de entrega -->
-        <div class="delivery-section">
-          <h3>Elige un tipo de entrega</h3>
+        
+        <!-- Resumen de la orden (lado derecho) -->
+        <div class="checkout-summary">
+          <h3>Resumen de la compra</h3>
           
-          <!-- Opción: Retira tu pedido -->
-          <div class="delivery-option" 
-               [class.selected]="selectedDeliveryType === 'pickup'"
-               (click)="selectDeliveryType('pickup')">
-            <div class="delivery-icon">
-              <i class="fas fa-store"></i>
-            </div>
-            <div class="delivery-details">
-              <h4>Retira tu pedido</h4>
-              <p>No hay tiendas cercanas disponibles en la zona seleccionada</p>
-              <button class="change-btn">Cambiar</button>
+          <div class="summary-item">
+            <span>Productos ({{getSelectedItemsCount()}})</span>
+            <span>S/ {{subtotal | number:'1.0-0'}}</span>
+          </div>
+          
+          <div class="summary-item discount" *ngIf="getDiscountAmount() > 0">
+            <span>Descuentos ({{getSelectedItemsCount()}})</span>
+            <span class="discount-amount">- S/ {{getDiscountAmount() | number:'1.0-0'}}</span>
+          </div>
+          
+          <div class="summary-divider"></div>
+          
+          <div class="summary-item total">
+            <span><strong>Total:</strong></span>
+            <span><strong>S/ {{total | number:'1.0-0'}}</strong></span>
+          </div>
+          
+          <div class="summary-item total-with-service">
+            <span><strong>Total con Imporllesinc:</strong></span>
+            <div class="service-total">
+              <span class="service-icons">
+                <i class="fab fa-cc-mastercard"></i>
+                <i class="fab fa-cc-visa"></i>
+                <i class="fab fa-cc-amex"></i>
+              </span>
+              <span class="service-price">S/ {{totalWithWarranty | number:'1.0-0'}}</span>
             </div>
           </div>
-
-          <!-- Opción: Envío Express -->
-          <div class="delivery-option" 
-               [class.selected]="selectedDeliveryType === 'express'"
-               (click)="selectDeliveryType('express')">
-            <div class="delivery-icon">
-              <i class="fas fa-shipping-fast"></i>
-            </div>
-            <div class="delivery-details">
-              <h4>Envío Express</h4>
-              <p class="unavailable">No disponible</p>
-              <p class="why-not">¿Por qué?</p>
-            </div>
-          </div>
-
-          <!-- Opción: Envío en fecha programada -->
-          <div class="delivery-option" 
-               [class.selected]="selectedDeliveryType === 'scheduled'"
-               (click)="selectDeliveryType('scheduled')">
-            <div class="delivery-icon">
-              <i class="fas fa-calendar-alt"></i>
-            </div>
-            <div class="delivery-details">
-              <h4>Envío en fecha programada</h4>
-              <p class="unavailable">No disponible</p>
-              <p class="why-not">¿Por qué?</p>
-            </div>
-          </div>
-
-          <!-- Opción: Envío en rango de fechas -->
-          <div class="delivery-option" 
-               [class.selected]="selectedDeliveryType === 'range'"
-               (click)="selectDeliveryType('range')">
-            <div class="delivery-icon">
-              <i class="fas fa-calendar-week"></i>
-            </div>
-            <div class="delivery-details">
-              <h4>Envío en rango de fechas</h4>
-              <p class="unavailable">No disponible</p>
-              <p class="why-not">¿Por qué?</p>
-            </div>
-          </div>
+          
+          <button class="payment-btn" 
+                  (click)="proceedToPayment()" 
+                  [disabled]="!selectedDeliveryType">
+            Ir a pagar
+          </button>
         </div>
       </div>
+    </div>
+  </div>
+
+  <!-- Modal para ingresar dirección -->
+  <div *ngIf="showAddressModal" class="modal-backdrop address-modal-backdrop">
+    <div class="address-modal-content">
+      <div class="address-modal-header">
+        <div class="address-modal-title">
+          <i class="fas fa-map-marker-alt"></i>
+          <span>Ingresa tu dirección</span>
+        </div>
+        <button class="close-btn" (click)="closeAddressModal()">&times;</button>
+      </div>
       
-      <!-- Resumen de la orden (lado derecho) -->
-      <div class="checkout-summary">
-        <h3>Resumen de la compra</h3>
+      <div class="address-modal-body">
+        <p class="address-subtitle">para ver las opciones de <strong>entrega</strong> y <strong>retiro</strong></p>
         
-        <div class="summary-item">
-          <span>Productos ({{getSelectedItemsCount()}})</span>
-          <span>S/ {{subtotal | number:'1.0-0'}}</span>
-        </div>
-        
-        <div class="summary-item discount" *ngIf="getDiscountAmount() > 0">
-          <span>Descuentos ({{getSelectedItemsCount()}})</span>
-          <span class="discount-amount">- S/ {{getDiscountAmount() | number:'1.0-0'}}</span>
-        </div>
-        
-        <div class="summary-divider"></div>
-        
-        <div class="summary-item total">
-          <span><strong>Total:</strong></span>
-          <span><strong>S/ {{total | number:'1.0-0'}}</strong></span>
-        </div>
-        
-        <div class="summary-item total-with-service">
-          <span><strong>Total con Falabella:</strong></span>
-          <div class="service-total">
-            <span class="service-icons">
-              <img src="assets/images/mastercard.png" alt="Mastercard" class="payment-icon">
-              <img src="assets/images/visa.png" alt="Visa" class="payment-icon">
-              <img src="assets/images/amex.png" alt="American Express" class="payment-icon">
-            </span>
-            <span class="service-price">S/ {{totalWithWarranty | number:'1.0-0'}}</span>
+        <form class="address-form">          <div class="form-group">
+            <label for="departamento">Departamento</label>
+            <select id="departamento" class="form-control" [(ngModel)]="selectedDepartamento" (change)="onDepartamentoChange()" name="departamento">
+              <option value="" *ngIf="!selectedDepartamento">Selecciona un Departamento</option>
+              <option *ngFor="let departamento of getDepartamentos()" [value]="departamento.value">{{departamento.name}}</option>
+            </select>
+          </div>            <div class="form-group">
+            <label for="provincia">Provincia</label>
+            <select id="provincia" class="form-control" [(ngModel)]="selectedProvincia" (change)="onProvinciaChange()" [disabled]="!selectedDepartamento || provincias.length === 0" name="provincia">
+              <option value="">Selecciona una Provincia</option>
+              <option *ngFor="let provincia of provincias" [value]="provincia.value">{{provincia.name}}</option>
+            </select>
           </div>
-        </div>
-        
-        <button class="payment-btn" 
-                (click)="proceedToPayment()" 
-                [disabled]="!selectedDeliveryType">
-          Ir a pagar
+            <div class="form-group">
+            <label for="distrito">Distrito</label>
+            <select id="distrito" class="form-control" [(ngModel)]="selectedDistrito" [disabled]="!selectedProvincia || distritos.length === 0" name="distrito">
+              <option value="">Selecciona un Distrito</option>
+              <option *ngFor="let distrito of distritos" [value]="distrito.value">{{distrito.name}}</option>
+            </select>
+          </div>
+          
+          <div class="form-group">
+            <label for="avenida">Avenida/ Calle/ Jirón</label>
+            <input type="text" id="avenida" class="form-control" placeholder="Ingresa el nombre de la calle" [(ngModel)]="avenida" name="avenida">
+          </div>
+          
+          <div class="form-group">
+            <label for="numero">Número</label>
+            <input type="text" id="numero" class="form-control" placeholder="Ingresa el número de la calle" [(ngModel)]="numero" name="numero">
+          </div>
+          
+          <div class="form-group">
+            <label for="referencias">Dpto./ Interior/ Piso/ Lote/ Bloque (opcional)</label>
+            <input type="text" id="referencias" class="form-control" placeholder="" [(ngModel)]="referencias" name="referencias">
+          </div>
+        </form>
+      </div>
+      
+      <div class="address-modal-footer">
+        <button type="button" class="btn btn-link" (click)="closeAddressModal()">
+          Descartar cambios
+        </button>
+        <button type="button" class="btn btn-primary" (click)="confirmAddress()">
+          Confirmar dirección
         </button>
       </div>
     </div>

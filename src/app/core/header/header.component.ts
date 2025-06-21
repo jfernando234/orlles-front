@@ -28,6 +28,7 @@ export class CustomValidators {
     }
     return null;
   }
+  
   static peruDNI(control: AbstractControl): ValidationErrors | null {
     const value = control.value;
     if (!value) return null;
@@ -147,12 +148,351 @@ export class HeaderComponent implements OnInit {
   showLoginModal = false;
   showRegisterModal = false;
   showCartModal = false;
+  showCheckoutModal = false;
+  showAddressModal = false;
+  selectedDeliveryType: string | null = null;
+  deliveryAddress: string = '';
+  
+  // Propiedades para el formulario de dirección
+  selectedDepartamento: string = '';
+  selectedProvincia: string = '';
+  selectedDistrito: string = '';
+  provincias: {name: string, value: string}[] = [];
+  distritos: {name: string, value: string}[] = [];
+  avenida: string = '';
+  numero: string = '';
+  referencias: string = '';
+
+  // Datos de departamentos, provincias y distritos de Perú
+  public ubicacionesData: any = {
+    amazonas: {
+      name: 'Amazonas',
+      provincias: {
+        chachapoyas: {
+          name: 'Chachapoyas',
+          distritos: ['Chachapoyas', 'Asunción', 'Balsas', 'Cheto', 'Chiliquín', 'Chuquibamba', 'Granada', 'Huancas', 'La Jalca', 'Leimebamba', 'Levanto', 'Magdalena', 'Mariscal Castilla', 'Molinopampa', 'Montevideo', 'Olleros', 'Quinjalca', 'San Francisco de Daguas', 'San Isidro de Maino', 'Soloco', 'Sonche']
+        },
+        bagua: {
+          name: 'Bagua',
+          distritos: ['Bagua', 'Aramango', 'Copallin', 'El Parco', 'Imaza', 'La Peca']
+        },
+        bongara: {
+          name: 'Bongará',
+          distritos: ['Jumbilla', 'Chisquilla', 'Churuja', 'Corosha', 'Cuispes', 'Florida', 'Jazan', 'Recta', 'San Carlos', 'Shipasbamba', 'Valera', 'Yambrasbamba']
+        }
+      }
+    },
+    ancash: {
+      name: 'Ancash',
+      provincias: {
+        huaraz: {
+          name: 'Huaraz',
+          distritos: ['Huaraz', 'Cochabamba', 'Colcabamba', 'Huanchay', 'Independencia', 'Jangas', 'La Libertad', 'Olleros', 'Pampas', 'Pariacoto', 'Pira', 'Tarica']
+        },
+        aija: {
+          name: 'Aija',
+          distritos: ['Aija', 'Coris', 'Huacllán', 'La Merced', 'Succha']
+        },
+        santa: {
+          name: 'Santa',
+          distritos: ['Chimbote', 'Cáceres del Perú', 'Coishco', 'Macate', 'Moro', 'Nepeña', 'Samanco', 'Santa', 'Nuevo Chimbote']
+        },
+        casma: {
+          name: 'Casma',
+          distritos: ['Casma', 'Buena Vista Alta', 'Comandante Noel', 'Yautan']
+        }
+      }
+    },
+    apurimac: {
+      name: 'Apurímac',
+      provincias: {
+        abancay: {
+          name: 'Abancay',
+          distritos: ['Abancay', 'Chacoche', 'Circa', 'Curahuasi', 'Huanipaca', 'Lambrama', 'Pichirhua', 'San Pedro de Cachora', 'Tamburco']
+        },
+        andahuaylas: {
+          name: 'Andahuaylas',
+          distritos: ['Andahuaylas', 'Andarapa', 'Chiara', 'Huancarama', 'Huancaray', 'Huayana', 'Kishuará', 'Pacobamba', 'Pacucha', 'Pampachiri', 'Pomacocha', 'San Antonio de Cachi', 'San Jerónimo', 'San Miguel de Chaccrampa', 'Santa María de Chicmo', 'Talavera', 'Tumay Huaraca', 'Turpo', 'Kaquiabamba']
+        }
+      }
+    },
+    arequipa: {
+      name: 'Arequipa',
+      provincias: {
+        arequipa: {
+          name: 'Arequipa',
+          distritos: ['Arequipa', 'Alto Selva Alegre', 'Cayma', 'Cerro Colorado', 'Characato', 'Chiguata', 'Jacobo Hunter', 'La Joya', 'Mariano Melgar', 'Miraflores', 'Mollebaya', 'Paucarpata', 'Pocsi', 'Polobaya', 'Quequeña', 'Sabandia', 'Sachaca', 'San Juan de Siguas', 'San Juan de Tarucani', 'Santa Isabel de Siguas', 'Santa Rita de Siguas', 'Socabaya', 'Tiabaya', 'Uchumayo', 'Vitor', 'Yanahuara', 'Yarabamba', 'Yura']
+        },
+        camana: {
+          name: 'Camaná',
+          distritos: ['Camaná', 'José María Quimper', 'Mariano Nicolás Valcárcel', 'Mariscal Cáceres', 'Nicolás de Piérola', 'Ocoña', 'Quilca', 'Samuel Pastor']
+        },
+        caraveli: {
+          name: 'Caravelí',
+          distritos: ['Caravelí', 'Acarí', 'Atico', 'Atiquipa', 'Bella Unión', 'Cahuacho', 'Chala', 'Chaparra', 'Huanuhuanu', 'Jaqui', 'Lomas', 'Quicacha', 'Yauca']
+        }
+      }
+    },
+    ayacucho: {
+      name: 'Ayacucho',
+      provincias: {
+        huamanga: {
+          name: 'Huamanga',
+          distritos: ['Ayacucho', 'Acocro', 'Acos Vinchos', 'Carmen Alto', 'Chiara', 'Ocros', 'Pacaycasa', 'Quinua', 'San José de Ticllas', 'San Juan Bautista', 'Santiago de Pischa', 'Socos', 'Tambillo', 'Vinchos', 'Jesús Nazareno']
+        },
+        cangallo: {
+          name: 'Cangallo',
+          distritos: ['Cangallo', 'Chuschi', 'Los Morochucos', 'María Parado de Bellido', 'Paras', 'Totos']
+        }
+      }
+    },
+    cajamarca: {
+      name: 'Cajamarca',
+      provincias: {
+        cajamarca: {
+          name: 'Cajamarca',
+          distritos: ['Cajamarca', 'Asunción', 'Chetilla', 'Cospan', 'Encañada', 'Jesús', 'Llacanora', 'Los Baños del Inca', 'Magdalena', 'Matara', 'Namora', 'San Juan']
+        },
+        celendin: {
+          name: 'Celendín',
+          distritos: ['Celendín', 'Chumuch', 'Cortegana', 'Huasmin', 'Jorge Chávez', 'José Gálvez', 'Miguel Iglesias', 'Oxamarca', 'Sorochuco', 'Sucre', 'Utco', 'La Libertad de Pallán']
+        }
+      }
+    },
+    callao: {
+      name: 'Callao',
+      provincias: {
+        callao: {
+          name: 'Callao',
+          distritos: ['Callao', 'Bellavista', 'Carmen de la Legua Reynoso', 'La Perla', 'La Punta', 'Mi Perú', 'Ventanilla']
+        }
+      }
+    },
+    cusco: {
+      name: 'Cusco',
+      provincias: {
+        cusco: {
+          name: 'Cusco',
+          distritos: ['Cusco', 'Ccorca', 'Poroy', 'San Jerónimo', 'San Sebastián', 'Santiago', 'Saylla', 'Wanchaq']
+        },
+        anta: {
+          name: 'Anta',
+          distritos: ['Anta', 'Ancahuasi', 'Cachimayo', 'Chinchaypujio', 'Huarocondo', 'Limatambo', 'Mollepata', 'Pucyura', 'Zurite']
+        },
+        calca: {
+          name: 'Calca',
+          distritos: ['Calca', 'Coya', 'Lamay', 'Lares', 'Pisac', 'San Salvador', 'Taray', 'Yanatile']
+        },
+        urubamba: {
+          name: 'Urubamba',
+          distritos: ['Urubamba', 'Chinchero', 'Huayllabamba', 'Machupicchu', 'Maras', 'Ollantaytambo', 'Yucay']
+        }
+      }
+    },
+    huancavelica: {
+      name: 'Huancavelica',
+      provincias: {
+        huancavelica: {
+          name: 'Huancavelica',
+          distritos: ['Huancavelica', 'Acobambilla', 'Acoria', 'Conayca', 'Cuenca', 'Huachocolpa', 'Huayllahuara', 'Izcuchaca', 'Laria', 'Manta', 'Mariscal Cáceres', 'Moya', 'Nuevo Occoro', 'Palca', 'Pilchaca', 'Vilca', 'Yauli', 'Ascensión', 'Huando']
+        }
+      }
+    },
+    huanuco: {
+      name: 'Huánuco',
+      provincias: {
+        huanuco: {
+          name: 'Huánuco',
+          distritos: ['Huánuco', 'Amarilis', 'Chinchao', 'Churubamba', 'Margos', 'Quisqui (Kichki)', 'San Francisco de Cayran', 'San Pedro de Chaulán', 'Santa María del Valle', 'Yarumayo', 'Pillco Marca']
+        }
+      }
+    },
+    ica: {
+      name: 'Ica',
+      provincias: {
+        ica: {
+          name: 'Ica',
+          distritos: ['Ica', 'La Tinguiña', 'Los Aquijes', 'Ocucaje', 'Pachacutec', 'Parcona', 'Pueblo Nuevo', 'Salas', 'San José de los Molinos', 'San Juan Bautista', 'Santiago', 'Subtanjalla', 'Tate', 'Yauca del Rosario']
+        },
+        chincha: {
+          name: 'Chincha',
+          distritos: ['Chincha Alta', 'Alto Larán', 'Chavin', 'Chincha Baja', 'El Carmen', 'Grocio Prado', 'Pueblo Nuevo', 'San Juan de Yanac', 'San Pedro de Huacarpana', 'Sunampe', 'Tambo de Mora']
+        },
+        pisco: {
+          name: 'Pisco',
+          distritos: ['Pisco', 'Huancano', 'Humay', 'Independencia', 'Paracas', 'San Andrés', 'San Clemente', 'Túpac Amaru Inca']
+        }
+      }
+    },
+    junin: {
+      name: 'Junín',
+      provincias: {
+        huancayo: {
+          name: 'Huancayo',
+          distritos: ['Huancayo', 'Carhuacallanga', 'Chacapampa', 'Chicche', 'Chilca', 'Chongos Alto', 'Chupuro', 'Colca', 'Cullhuas', 'El Tambo', 'Huacrapuquio', 'Hualhuas', 'Huancan', 'Huasicancha', 'Huayucachi', 'Ingenio', 'Pariahuanca', 'Pilcomayo', 'Pucará', 'Quichuay', 'Quilcas', 'San Agustín', 'San Jerónimo de Tunán', 'Saño', 'Sapallanga', 'Sicaya', 'Santo Domingo de Acobamba', 'Viques']
+        }
+      }
+    },
+    la_libertad: {
+      name: 'La Libertad',
+      provincias: {
+        trujillo: {
+          name: 'Trujillo',
+          distritos: ['Trujillo', 'El Porvenir', 'Florencia de Mora', 'Huanchaco', 'La Esperanza', 'Laredo', 'Moche', 'Poroto', 'Salaverry', 'Simbal', 'Víctor Larco Herrera']
+        },
+        ascope: {
+          name: 'Ascope',
+          distritos: ['Ascope', 'Chicama', 'Chocope', 'Magdalena de Cao', 'Paijan', 'Rázuri', 'Santiago de Cao', 'Casa Grande']
+        }
+      }
+    },
+    lambayeque: {
+      name: 'Lambayeque',
+      provincias: {
+        chiclayo: {
+          name: 'Chiclayo',
+          distritos: ['Chiclayo', 'Chongoyape', 'Eten', 'Eten Puerto', 'José Leonardo Ortiz', 'La Victoria', 'Lagunas', 'Monsefu', 'Nueva Arica', 'Oyotun', 'Picsi', 'Pimentel', 'Reque', 'Santa Rosa', 'Saña', 'Cayalti', 'Patapo', 'Pomalca', 'Pucala', 'Tuman']
+        },
+        lambayeque: {
+          name: 'Lambayeque',
+          distritos: ['Lambayeque', 'Chochope', 'Illimo', 'Jayanca', 'Mochumi', 'Morrope', 'Motupe', 'Olmos', 'Pacora', 'Salas', 'San José', 'Tucume']
+        }
+      }
+    },
+    lima: {
+      name: 'Lima',
+      provincias: {
+        lima: {
+          name: 'Lima',
+          distritos: ['Ate', 'Barranco', 'Breña', 'Carabayllo', 'Chaclacayo', 'Chorrillos', 'Cieneguilla', 'Comas', 'El Agustino', 'Independencia', 'Jesús María', 'La Molina', 'La Victoria', 'Lince', 'Los Olivos', 'Lurigancho', 'Lurín', 'Magdalena del Mar', 'Miraflores', 'Pachacamac', 'Pucusana', 'Pueblo Libre', 'Puente Piedra', 'Punta Hermosa', 'Punta Negra', 'Rímac', 'San Bartolo', 'San Borja', 'San Isidro', 'San Juan de Lurigancho', 'San Juan de Miraflores', 'San Luis', 'San Martín de Porres', 'San Miguel', 'Santa Anita', 'Santa María del Mar', 'Santa Rosa', 'Santiago de Surco', 'Surquillo', 'Villa El Salvador', 'Villa María del Triunfo', 'Lima']
+        },
+        huaral: {
+          name: 'Huaral',
+          distritos: ['Huaral', 'Atavillos Alto', 'Atavillos Bajo', 'Chancay', 'Ihuarí', 'Lampián', 'Pacaraos', 'San Miguel de Acos', 'Santa Cruz de Andamarca', 'Sumbilca', 'Veintisiete de Noviembre']
+        },
+        canta: {
+          name: 'Canta',
+          distritos: ['Canta', 'Arahuay', 'Huamantanga', 'Huaros', 'Lachaqui', 'San Buenaventura', 'Santa Rosa de Quives']
+        }
+      }
+    },
+    loreto: {
+      name: 'Loreto',
+      provincias: {
+        maynas: {
+          name: 'Maynas',
+          distritos: ['Iquitos', 'Alto Nanay', 'Fernando Lores', 'Indiana', 'Las Amazonas', 'Mazan', 'Napo', 'Punchana', 'Torres Causana', 'Belén', 'San Juan Bautista']
+        }
+      }
+    },
+    madre_de_dios: {
+      name: 'Madre de Dios',
+      provincias: {
+        tambopata: {
+          name: 'Tambopata',
+          distritos: ['Tambopata', 'Inambari', 'Las Piedras', 'Laberinto']
+        }
+      }
+    },
+    moquegua: {
+      name: 'Moquegua',
+      provincias: {
+        mariscal_nieto: {
+          name: 'Mariscal Nieto',
+          distritos: ['Moquegua', 'Carumas', 'Cuchumbaya', 'Samegua', 'San Cristóbal', 'Torata']
+        }
+      }
+    },
+    pasco: {
+      name: 'Pasco',
+      provincias: {
+        pasco: {
+          name: 'Pasco',
+          distritos: ['Chaupimarca', 'Huachon', 'Huariaca', 'Huayllay', 'Ninacaca', 'Pallanchacra', 'Paucartambo', 'San Francisco de Asís de Yarusyacan', 'Simon Bolívar', 'Ticlacayan', 'Tinyahuarco', 'Vicco', 'Yanacancha']
+        }
+      }
+    },
+    piura: {
+      name: 'Piura',
+      provincias: {
+        piura: {
+          name: 'Piura',
+          distritos: ['Piura', 'Castilla', 'Catacaos', 'Cura Mori', 'El Tallán', 'La Arena', 'La Unión', 'Las Lomas', 'Tambo Grande', 'Veintiseis de Octubre']
+        },
+        sullana: {
+          name: 'Sullana',
+          distritos: ['Sullana', 'Bellavista', 'Ignacio Escudero', 'Lancones', 'Marcavelica', 'Miguel Checa', 'Querecotillo', 'Salitral']
+        }
+      }
+    },
+    puno: {
+      name: 'Puno',
+      provincias: {
+        puno: {
+          name: 'Puno',
+          distritos: ['Puno', 'Acora', 'Amantani', 'Atuncolla', 'Capachica', 'Chucuito', 'Coata', 'Huata', 'Mañazo', 'Paucarcolla', 'Pichacani', 'Plateria', 'San Antonio', 'Tiquillaca', 'Vilque']
+        }
+      }
+    },
+    san_martin: {
+      name: 'San Martín',
+      provincias: {
+        moyobamba: {
+          name: 'Moyobamba',
+          distritos: ['Moyobamba', 'Calzada', 'Habana', 'Jepelacio', 'Soritor', 'Yantalo']
+        }
+      }
+    },
+    tacna: {
+      name: 'Tacna',
+      provincias: {
+        tacna: {
+          name: 'Tacna',
+          distritos: ['Tacna', 'Alto de la Alianza', 'Calana', 'Ciudad Nueva', 'Inclan', 'Pachia', 'Palca', 'Pocollay', 'Sama', 'Coronel Gregorio Albarracín Lanchipa']
+        }
+      }
+    },
+    tumbes: {
+      name: 'Tumbes',
+      provincias: {
+        tumbes: {
+          name: 'Tumbes',
+          distritos: ['Tumbes', 'Corrales', 'La Cruz', 'Pampas de Hospital', 'San Jacinto', 'San Juan de la Virgen']
+        }
+      }
+    },
+    ucayali: {
+    name: 'Ucayali',
+    provincias: {
+      coronel_portillo: {
+        name: 'Coronel Portillo',
+        distritos: ['Callería', 'Campo Verde', 'Iparía', 'Masisea', 'Yarinacocha', 'Nueva Requena']
+      },
+      atalaya: {
+        name: 'Atalaya',
+        distritos: ['Raimondi', 'Sepahua', 'Tahuanía', 'Yurúa']
+      },
+      padre_abad: {
+        name: 'Padre Abad',
+        distritos: ['Padre Abad', 'Irázola', 'Curimaná', 'Huipoca', 'Boquerón', 'Alexander von Humboldt', 'Neshuya']
+      },
+      purus: {
+        name: 'Purús',
+        distritos: ['Purús']
+      }
+    }
+  }
+};
+  
   loginForm: FormGroup;
-  registerForm: FormGroup;  error: string | null = null;
+  registerForm: FormGroup;
+  error: string | null = null;
   registerError: string | null = null;
   isAuthenticated = false;
   nombreUsuario = '';
-  userRole = '';  // Datos mock del carrito con 5 productos
+  userRole = '';
+
+  // Datos mock del carrito con 5 productos
   cartItems: CartItem[] = [
     {
       id: 1,
@@ -218,6 +558,7 @@ export class HeaderComponent implements OnInit {
   // Propiedades para paginación
   currentPage = 1;
   itemsPerPage = 3;
+
   // Getters para calcular totales
   get subtotal(): number {
     return this.cartItems
@@ -232,6 +573,7 @@ export class HeaderComponent implements OnInit {
   get total(): number {
     return this.subtotal + this.igv;
   }
+
   constructor(private router: Router, private fb: FormBuilder, private authService: AuthService) {
     this.loginForm = this.fb.group({
       nombreUsuario: ['', Validators.required],
@@ -269,11 +611,20 @@ export class HeaderComponent implements OnInit {
     // Actualizar validación
     documentControl?.updateValueAndValidity();
   }
+
   ngOnInit() {
     this.checkAuthentication();
     this.updateCartCount();
     this.initializeCartState();
+    // Inicializar provincias y distritos si ya hay un departamento seleccionado
+    if (this.selectedDepartamento) {
+      this.onDepartamentoChange();
+    }
+    if (this.selectedProvincia) {
+      this.onProvinciaChange();
+    }
   }
+
   checkAuthentication() {
     const usuario = localStorage.getItem('usuario');
     console.log('Usuario en localStorage:', usuario);
@@ -296,7 +647,8 @@ export class HeaderComponent implements OnInit {
       this.userRole = '';
     }
   }
-    cerrarSesion() {
+
+  cerrarSesion() {
     this.authService.logout();
     this.isAuthenticated = false;
     this.nombreUsuario = '';
@@ -384,7 +736,8 @@ export class HeaderComponent implements OnInit {
       });
     } else {
       this.registerError = 'Por favor, completa todos los campos correctamente';
-    }  }
+    }
+  }
 
   // Métodos para el carrito
   incrementQty(item: CartItem) {
@@ -409,43 +762,6 @@ export class HeaderComponent implements OnInit {
   emptyCart() {
     this.cartItems = [];
     this.updateCartCount();
-  }
-  // Propiedades para el modal de checkout
-  showCheckoutModal = false;
-  selectedDeliveryType = '';
-  deliveryAddress = '';
-  
-  proceedToCheckout() {
-    console.log('Proceder al pago');
-    this.closeCartModal();
-    this.openCheckoutModal();
-  }
-
-  openCheckoutModal() {
-    this.showCheckoutModal = true;
-  }
-
-  closeCheckoutModal() {
-    this.showCheckoutModal = false;
-    this.selectedDeliveryType = '';
-    this.deliveryAddress = '';
-  }
-
-  selectDeliveryType(type: string) {
-    this.selectedDeliveryType = type;
-  }
-
-  proceedToPayment() {
-    if (!this.selectedDeliveryType) {
-      alert('Por favor selecciona un tipo de entrega');
-      return;
-    }
-    
-    console.log('Tipo de entrega seleccionado:', this.selectedDeliveryType);
-    console.log('Dirección:', this.deliveryAddress);
-    
-    // Aquí iría la lógica para proceder al pago
-    this.closeCheckoutModal();
   }
 
   // Métodos para redes sociales
@@ -492,6 +808,7 @@ export class HeaderComponent implements OnInit {
       this.registerForm.get(field)?.setValue(value);
     }
   }
+
   onDNIInput(event: Event) {
     const input = event.target as HTMLInputElement;
     let value = input.value;
@@ -531,7 +848,8 @@ export class HeaderComponent implements OnInit {
       this.registerForm.get('numeroDocumento')?.updateValueAndValidity();
     }
   }
-    onPhoneInput(event: Event) {
+
+  onPhoneInput(event: Event) {
     const input = event.target as HTMLInputElement;
     let value = input.value;
     
@@ -558,6 +876,7 @@ export class HeaderComponent implements OnInit {
       this.registerForm.get('celular')?.updateValueAndValidity();
     }
   }
+
   onKeyPress(event: KeyboardEvent, field: string) {
     const char = event.key;
     const input = event.target as HTMLInputElement;
@@ -652,6 +971,7 @@ export class HeaderComponent implements OnInit {
     }
     return '';
   }
+
   getDNIError(): string {
     const control = this.registerForm.get('numeroDocumento');
     const tipoDocumento = this.registerForm.get('tipoDocumento')?.value;
@@ -673,7 +993,8 @@ export class HeaderComponent implements OnInit {
     }
     return '';
   }
-    getPhoneError(): string {
+
+  getPhoneError(): string {
     const control = this.registerForm.get('celular');
     if (control?.errors && control.touched) {
       if (control.errors['required']) return 'Este campo es obligatorio';
@@ -722,6 +1043,7 @@ export class HeaderComponent implements OnInit {
         return 9;
     }
   }
+
   // Nuevos métodos para el carrito mejorado
   toggleSelectAll() {
     this.allSelected = !this.allSelected;
@@ -766,6 +1088,7 @@ export class HeaderComponent implements OnInit {
     const selectedItemsCount = this.getSelectedItemsCount();
     this.totalWithWarranty = selectedSubtotal + (warrantyBase * selectedItemsCount);
   }
+
   // Método para inicializar el estado del carrito
   initializeCartState() {
     // Asegurar que todos los items tengan la propiedad selected
@@ -803,5 +1126,123 @@ export class HeaderComponent implements OnInit {
     if (this.currentPage > 1) {
       this.currentPage--;
     }
+  }
+
+  // Métodos para el modal de checkout
+  proceedToCheckout(): void {
+    this.closeCartModal();
+    this.showCheckoutModal = true;
+  }
+
+  closeCheckoutModal(): void {
+    this.showCheckoutModal = false;
+  }
+
+  selectDeliveryType(type: string): void {
+    this.selectedDeliveryType = type;
+  }
+
+  proceedToPayment(): void {
+    console.log('Proceder al pago con tipo de entrega:', this.selectedDeliveryType);
+    // Aquí iría la lógica para proceder al pago
+  }
+
+  // Métodos para el modal de dirección
+  openAddressModal(): void {
+    this.showAddressModal = true;
+  }
+
+  closeAddressModal(): void {
+    this.showAddressModal = false;
+    // Limpiar los campos del formulario
+    this.selectedDepartamento = '';
+    this.selectedProvincia = '';
+    this.selectedDistrito = '';
+    this.provincias = [];
+    this.distritos = [];
+  }
+
+  confirmAddress(): void {
+    // Construir la dirección completa
+    const departamento = this.ubicacionesData[this.selectedDepartamento]?.name || '';
+    const provincia = this.ubicacionesData[this.selectedDepartamento]?.provincias[this.selectedProvincia]?.name || '';
+    const distritoObj = this.distritos.find(d => d.value === this.selectedDistrito);
+    const distrito = distritoObj?.name || '';
+    
+    if (departamento && provincia && distrito && this.avenida && this.numero) {
+      let direccionCompleta = `${this.avenida} ${this.numero}`;
+      if (this.referencias) {
+        direccionCompleta += `, ${this.referencias}`;
+      }
+      direccionCompleta += `, ${distrito}, ${provincia}, ${departamento}`;
+      
+      this.deliveryAddress = direccionCompleta;
+      console.log('Dirección confirmada:', this.deliveryAddress);
+      this.closeAddressModal();
+    } else {
+      alert('Por favor completa todos los campos obligatorios (Departamento, Provincia, Distrito, Avenida/Calle y Número)');
+    }
+  }
+
+  // Método para manejar cambio de departamento
+  onDepartamentoChange(): void {
+    // Asegúrate de que selectedDepartamento es el value (key) del objeto
+    // Ejemplo: 'amazonas', 'ancash', etc.
+    this.selectedProvincia = '';
+    this.selectedDistrito = '';
+    this.provincias = [];
+    this.distritos = [];
+
+    if (this.selectedDepartamento && this.ubicacionesData[this.selectedDepartamento]) {
+      const departamentoData = this.ubicacionesData[this.selectedDepartamento];
+      this.provincias = Object.keys(departamentoData.provincias).map(key => ({
+        value: key,
+        name: departamentoData.provincias[key].name
+      }));
+    }
+  }
+
+  // Método para manejar cambio de provincia  
+  onProvinciaChange(): void {
+    console.log('Provincia seleccionada:', this.selectedProvincia);
+    
+    // Resetear distrito
+    this.selectedDistrito = '';
+    this.distritos = [];
+    
+    if (
+      this.selectedDepartamento &&
+      this.selectedProvincia &&
+      this.ubicacionesData[this.selectedDepartamento] &&
+      this.ubicacionesData[this.selectedDepartamento].provincias[this.selectedProvincia]
+    ) {
+      const provinciaData = this.ubicacionesData[this.selectedDepartamento].provincias[this.selectedProvincia];
+      console.log('Datos de la provincia:', provinciaData);
+      
+      if (provinciaData && provinciaData.distritos) {
+        this.distritos = provinciaData.distritos.map((distrito: string) => ({
+          value: distrito.toLowerCase().replace(/\s+/g, '_').replace(/[áéíóúñ]/g, match => {
+            const replacements: {[key: string]: string} = {'á': 'a', 'é': 'e', 'í': 'i', 'ó': 'o', 'ú': 'u', 'ñ': 'n'};
+            return replacements[match] || match;
+          }),
+          name: distrito
+        }));
+        console.log('Distritos cargados:', this.distritos);
+      }
+    }
+  }
+
+  // Método para obtener la lista de departamentos
+  getDepartamentos(): {value: string, name: string}[] {
+    const departamentos = Object.keys(this.ubicacionesData).map(key => ({
+      value: key,
+      name: this.ubicacionesData[key].name
+    }));
+    console.log('Departamentos disponibles:', departamentos);
+    return departamentos;
+  }
+
+  get selectedDepartamentoName(): string {
+    return this.ubicacionesData[this.selectedDepartamento]?.name || '';
   }
 }
