@@ -277,6 +277,8 @@
   color: #e20613;
   font-size: 12px;
   margin-top: 4px;
+  font-weight: 500;
+  display: block;
 }
 
 .error-message {
@@ -770,6 +772,73 @@
 .phone-input::placeholder {
   color: #9ca3af;
   font-style: italic;
+}
+
+/* Estilos para validaciones personalizadas */
+.password-requirements {
+  margin-top: 8px;
+  padding: 8px 12px;
+  background-color: #f8f9fa;
+  border-radius: 4px;
+  border-left: 3px solid #007bff;
+}
+
+.password-requirements small {
+  color: #6c757d;
+  font-weight: 500;
+  display: block;
+  margin-bottom: 4px;
+}
+
+.password-requirements ul {
+  margin: 0;
+  padding-left: 16px;
+  font-size: 11px;
+  color: #6c757d;
+}
+
+.password-requirements li {
+  margin-bottom: 2px;
+}
+
+/* Estilos para inputs con error */
+.form-control.ng-invalid.ng-touched {
+  border-color: #e20613;
+  box-shadow: 0 0 0 0.2rem rgba(226, 6, 19, 0.1);
+}
+
+/* Estilos para inputs válidos */
+.form-control.ng-valid.ng-touched {
+  border-color: #28a745;
+  box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.1);
+}
+
+/* Estilos para campos en la misma fila */
+.form-row {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+}
+
+.form-group-half {
+  flex: 1;
+  min-width: 0; /* Permite que el flex funcione correctamente */
+}
+
+.form-group-half .form-control {
+  width: 100%;
+}
+
+/* Responsive: En pantallas pequeñas, volver a columna */
+@media (max-width: 576px) {
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+  
+  .form-group-half {
+    margin-bottom: 16px;
+  }
 }
 
 /* Responsive */

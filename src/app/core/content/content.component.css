@@ -1,12 +1,13 @@
 .content-main {
   flex-grow: 1;
-  padding-top: 130px;
+  padding: 20px 20px 0 20px;
   min-height: calc(100vh - 130px);
 }
 
 /* Carousel Styles */
 .carousel-container {
   position: relative;
+  margin-top: 40px;
   margin-bottom: 32px;
   height: 400px;
   overflow: hidden;
