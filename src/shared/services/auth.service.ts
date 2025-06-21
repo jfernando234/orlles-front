@@ -33,35 +33,10 @@ export class AuthService {
     return this.http.post<LoginResponse>(`${this.apiUrl}/api/auth/login`, data)
       .pipe(
         tap(response => {
-          // Determinar el nombre del usuario según la estructura de respuesta
-          let nombreUsuario = '';
-          let roles: string[] = [];
+          console.log('Login response:', response);
           
-          if (response.usuario) {
-            // Formato esperado del backend original
-            nombreUsuario = response.usuario;
-            roles = response.roles || [];
-          } else if (response.nombre_completo) {
-            // Formato de la base de datos actual
-            nombreUsuario = response.nombre_completo;
-            if (response.rol) {
-              roles = [response.rol];
-            }
-          } else if (response.nombreCompleto) {
-            // Formato anterior
-            nombreUsuario = response.nombreCompleto;
-            if (response.rol) {
-              roles = [response.rol];
-            }
-          } else if (response.nombreUsuario) {
-            nombreUsuario = response.nombreUsuario;
-            if (response.rol) {
-              roles = [response.rol];
-            }
-          }
-          
-          localStorage.setItem('usuario', nombreUsuario);
-          localStorage.setItem('roles', JSON.stringify(roles));
+          // Guardar toda la información del usuario
+          localStorage.setItem('usuario', JSON.stringify(response));
           localStorage.setItem('authenticated', 'true');
           this.isAuthenticatedSubject.next(true);
         })
@@ -71,26 +46,25 @@ export class AuthService {
   registrar(usuario: Usuario): Observable<any> {
     return this.http.post(`${this.apiUrl}/api/auth/registrar`, usuario);
   }
-
   logout() {
     localStorage.removeItem('usuario');
-    localStorage.removeItem('roles');
     localStorage.removeItem('authenticated');
     this.isAuthenticatedSubject.next(false);
   }
 
-  getCurrentUser(): string | null {
-    return localStorage.getItem('usuario');
+  getCurrentUser(): any | null {
+    const userData = localStorage.getItem('usuario');
+    return userData ? JSON.parse(userData) : null;
   }
 
   getRoles(): string[] {
-    const rolesStr = localStorage.getItem('roles');
-    return rolesStr ? JSON.parse(rolesStr) : [];
+    const user = this.getCurrentUser();
+    return user && user.rol ? [user.rol] : [];
   }
 
   hasRole(role: string): boolean {
-    const roles = this.getRoles();
-    return roles.includes(role);
+    const user = this.getCurrentUser();
+    return user && user.rol === role;
   }
 
   private hasToken(): boolean {

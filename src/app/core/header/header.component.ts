@@ -8,8 +8,12 @@ export interface CartItem {
   id: number;
   nombre: string;
   precio: number;
+  precioOriginal?: number;
+  descuento?: number;
   cantidad: number;
   imagen: string;
+  color?: string;
+  selected?: boolean;
 }
 
 // Validadores personalizados
@@ -144,33 +148,81 @@ export class HeaderComponent implements OnInit {
   showRegisterModal = false;
   showCartModal = false;
   loginForm: FormGroup;
-  registerForm: FormGroup;
-  error: string | null = null;
+  registerForm: FormGroup;  error: string | null = null;
   registerError: string | null = null;
   isAuthenticated = false;
   nombreUsuario = '';
-  
-  // Datos mock del carrito
+  userRole = '';  // Datos mock del carrito con 5 productos
   cartItems: CartItem[] = [
     {
       id: 1,
-      nombre: 'MacBook Pro 2025',
-      precio: 2499,
-      cantidad: 2,
-      imagen: 'https://via.placeholder.com/80x80/f0f0f0/333?text=MacBook'
+      nombre: 'iPad Apple 11 Chip A16 Wi-Fi',
+      precio: 1649,
+      precioOriginal: 1799,
+      descuento: 8,
+      cantidad: 1,
+      imagen: 'https://via.placeholder.com/120x120/f0f0f0/333?text=iPad',
+      color: 'Azul',
+      selected: true
     },
     {
       id: 2,
-      nombre: 'Dell XPS 15',
-      precio: 1499,
+      nombre: 'MacBook Pro 14" M3',
+      precio: 2299,
+      precioOriginal: 2499,
+      descuento: 8,
       cantidad: 1,
-      imagen: 'https://via.placeholder.com/80x80/f0f0f0/333?text=Dell+XPS'
+      imagen: 'https://via.placeholder.com/120x120/f0f0f0/333?text=MacBook',
+      color: 'Gris Espacial',
+      selected: true
+    },
+    {
+      id: 3,
+      nombre: 'iPhone 15 Pro Max',
+      precio: 4899,
+      precioOriginal: 5299,
+      descuento: 8,
+      cantidad: 1,
+      imagen: 'https://via.placeholder.com/120x120/f0f0f0/333?text=iPhone',
+      color: 'Titanio Natural',
+      selected: true
+    },
+    {
+      id: 4,
+      nombre: 'Apple Watch Series 9',
+      precio: 1499,
+      precioOriginal: 1699,
+      descuento: 12,
+      cantidad: 1,
+      imagen: 'https://via.placeholder.com/120x120/f0f0f0/333?text=Watch',
+      color: 'Rosa',
+      selected: true
+    },
+    {
+      id: 5,
+      nombre: 'AirPods Pro 2da Generación',
+      precio: 899,
+      precioOriginal: 999,
+      descuento: 10,
+      cantidad: 1,
+      imagen: 'https://via.placeholder.com/120x120/f0f0f0/333?text=AirPods',
+      color: 'Blanco',
+      selected: true
     }
   ];
   
+  // Nuevas propiedades para el carrito mejorado
+  allSelected = false;
+  totalWithWarranty = 0;
+  
+  // Propiedades para paginación
+  currentPage = 1;
+  itemsPerPage = 3;
   // Getters para calcular totales
   get subtotal(): number {
-    return this.cartItems.reduce((total, item) => total + (item.precio * item.cantidad), 0);
+    return this.cartItems
+      .filter(item => item.selected)
+      .reduce((total, item) => total + (item.precio * item.cantidad), 0);
   }
   
   get igv(): number {
@@ -217,12 +269,11 @@ export class HeaderComponent implements OnInit {
     // Actualizar validación
     documentControl?.updateValueAndValidity();
   }
-
   ngOnInit() {
     this.checkAuthentication();
     this.updateCartCount();
+    this.initializeCartState();
   }
-
   checkAuthentication() {
     const usuario = localStorage.getItem('usuario');
     console.log('Usuario en localStorage:', usuario);
@@ -233,19 +284,23 @@ export class HeaderComponent implements OnInit {
       try {
         const usuarioObj = JSON.parse(usuario);
         this.nombreUsuario = usuarioObj.nombreCompleto || usuarioObj.nombreUsuario || usuarioObj.usuario || 'Usuario';
+        this.userRole = usuarioObj.rol || '';
+        console.log('Rol del usuario:', this.userRole);
       } catch (e) {
         this.nombreUsuario = usuario;
+        this.userRole = '';
       }
     } else {
       this.isAuthenticated = false;
       this.nombreUsuario = '';
+      this.userRole = '';
     }
   }
-  
-  cerrarSesion() {
+    cerrarSesion() {
     this.authService.logout();
     this.isAuthenticated = false;
     this.nombreUsuario = '';
+    this.userRole = '';
     this.router.navigate(['/']);
   }
 
@@ -329,13 +384,14 @@ export class HeaderComponent implements OnInit {
       });
     } else {
       this.registerError = 'Por favor, completa todos los campos correctamente';
-    }
-  }
+    }  }
 
   // Métodos para el carrito
   incrementQty(item: CartItem) {
-    item.cantidad++;
-    this.updateCartCount();
+    if (item.cantidad < 10) {
+      item.cantidad++;
+      this.updateCartCount();
+    }
   }
 
   decrementQty(item: CartItem) {
@@ -632,6 +688,88 @@ export class HeaderComponent implements OnInit {
         return 9;
       default:
         return 9;
+    }
+  }
+  // Nuevos métodos para el carrito mejorado
+  toggleSelectAll() {
+    this.allSelected = !this.allSelected;
+    // Aplicar selección a TODOS los items, no solo los visibles
+    this.cartItems.forEach(item => {
+      item.selected = this.allSelected;
+    });
+    this.updateTotals();
+  }
+
+  toggleItemSelection(item: CartItem) {
+    item.selected = !item.selected;
+    this.updateAllSelectedState();
+    this.updateTotals();
+  }
+
+  updateAllSelectedState() {
+    this.allSelected = this.cartItems.every(item => item.selected);
+  }
+
+  getSelectedItemsCount(): number {
+    return this.cartItems.filter(item => item.selected).length;
+  }
+
+  getDiscountAmount(): number {
+    return this.cartItems
+      .filter(item => item.selected && item.precioOriginal)
+      .reduce((total, item) => {
+        const discount = (item.precioOriginal! - item.precio) * item.cantidad;
+        return total + discount;
+      }, 0);
+  }
+
+  updateTotals() {
+    // Calcular total con garantía (precio ficticio para demostración)
+    const selectedSubtotal = this.cartItems
+      .filter(item => item.selected)
+      .reduce((total, item) => total + (item.precio * item.cantidad), 0);
+    
+    // Asumiendo un costo de garantía de S/435 por producto seleccionado
+    const warrantyBase = 435;
+    const selectedItemsCount = this.getSelectedItemsCount();
+    this.totalWithWarranty = selectedSubtotal + (warrantyBase * selectedItemsCount);
+  }
+  // Método para inicializar el estado del carrito
+  initializeCartState() {
+    // Asegurar que todos los items tengan la propiedad selected
+    this.cartItems.forEach(item => {
+      if (item.selected === undefined) {
+        item.selected = true;
+      }
+    });
+    
+    // Resetear a la primera página
+    this.currentPage = 1;
+    
+    this.updateAllSelectedState();
+    this.updateTotals();
+  }
+
+  // Métodos de paginación
+  getPaginatedItems(): CartItem[] {
+    const startIndex = (this.currentPage - 1) * this.itemsPerPage;
+    const endIndex = startIndex + this.itemsPerPage;
+    return this.cartItems.slice(startIndex, endIndex);
+  }
+
+  getTotalPages(): number {
+    return Math.ceil(this.cartItems.length / this.itemsPerPage);
+  }
+
+  nextPage(): void {
+    if (this.currentPage < this.getTotalPages()) {
+      this.currentPage++;
+    }
+  }
+
+  previousPage(): void {
+    if (this.currentPage > 1) {
+      this.currentPage--;
     }
   }
 }

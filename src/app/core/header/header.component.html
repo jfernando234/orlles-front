@@ -24,24 +24,24 @@
     </div>
 
     <!-- User Actions -->
-    <div class="user-actions">
-      <!-- Mostrar cuando NO está autenticado -->
+    <div class="user-actions">      <!-- Mostrar cuando NO está autenticado -->
       <ng-container *ngIf="!isAuthenticated">
         <div class="welcome-text">Bienvenido</div>        <button (click)="onLoginClick()" class="auth-button">
           Identifícate
-        </button>
-        <button class="btn-ticket" [routerLink]="['/admin-access']">
-          admin
         </button>
         <button (click)="onRegisterClick()" class="auth-button">
           Regístrate
         </button>
 
       </ng-container>
-      
-      <!-- Mostrar cuando SÍ está autenticado -->
+        <!-- Mostrar cuando SÍ está autenticado -->
       <ng-container *ngIf="isAuthenticated">
         <div class="welcome-text">Hola, {{ nombreUsuario }}</div>
+          <!-- Botón admin solo para usuarios con rol EMPLEADO -->
+        <button *ngIf="userRole === 'EMPLEADO'" class="auth-button" [routerLink]="['/admin-access']">
+          Administrar
+        </button>
+        
         <button (click)="cerrarSesion()" class="auth-button">
           Cerrar sesión
         </button>
@@ -237,47 +237,130 @@
         Servicio de importación
       </button>
     </div>
-  </div>
-
-  <!-- Modal Carrito de Compras -->
+  </div>  <!-- Modal Carrito de Compras -->
   <div *ngIf="showCartModal" class="modal-backdrop">
     <div class="cart-modal-content">
+      <!-- Header del modal con título centrado -->
       <div class="cart-modal-header">
-        <h2>Carrito de Compras</h2>
+        <div class="header-title">
+          <h2>Carro ({{cartItems.length}} productos)</h2>
+        </div>
         <button class="close-btn" (click)="closeCartModal()">&times;</button>
       </div>
+      
       <div class="cart-modal-body">
-        <div *ngIf="cartItems.length === 0" class="empty-cart">Tu carrito está vacío.</div>
-        <div *ngFor="let item of cartItems" class="cart-item">
-          <img [src]="item.imagen" alt="{{item.nombre}}" class="cart-item-img">
-          <div class="cart-item-info">
-            <div class="cart-item-title">{{item.nombre}}</div>
-            <div class="cart-item-price">${{item.precio | number:'1.0-2'}}</div>
+        <div *ngIf="cartItems.length === 0" class="empty-cart">
+          <i class="fas fa-shopping-cart"></i>
+          <p>Tu carrito está vacío</p>
+          <p class="empty-subtitle">Agrega productos para continuar</p>
+        </div>
+        
+        <div *ngIf="cartItems.length > 0" class="cart-content">
+          <!-- Selector todos -->
+          <div class="select-all">
+            <input type="checkbox" id="selectAll" [checked]="allSelected" (change)="toggleSelectAll()">
+            <label for="selectAll">Seleccionar todos</label>
           </div>
-          <div class="cart-item-qty">
-            <button (click)="decrementQty(item)" class="qty-btn">-</button>
-            <span>{{item.cantidad}}</span>
-            <button (click)="incrementQty(item)" class="qty-btn">+</button>
+          
+          <!-- Items del carrito con paginación -->
+          <div class="cart-items-list">
+            <div *ngFor="let item of getPaginatedItems()" class="cart-item">
+              <div class="item-checkbox">
+                <input type="checkbox" [id]="'item-' + item.id" [checked]="item.selected" (change)="toggleItemSelection(item)">
+              </div>
+              
+              <div class="item-image">
+                <img [src]="item.imagen" [alt]="item.nombre">
+              </div>
+              
+              <div class="item-details">
+                <h4 class="item-title">{{item.nombre}}</h4>
+                <p class="item-brand">APPLE</p>
+                <p class="item-color">Color: <span class="color-value">{{item.color || 'Azul'}}</span></p>
+              </div>
+              
+              <div class="item-pricing">
+                <div class="price-section">
+                  <!-- <div class="discount-badge" *ngIf="item.descuento">-{{item.descuento}}%</div> -->
+                  <div class="current-price">S/ {{item.precio | number:'1.0-0'}}</div>
+                  <div class="original-price" *ngIf="item.precioOriginal">S/ {{item.precioOriginal | number:'1.0-0'}}</div>
+                </div>
+                
+                <div class="quantity-controls">
+                  <button class="qty-btn" (click)="decrementQty(item)" [disabled]="item.cantidad <= 1">-</button>
+                  <span class="quantity">{{item.cantidad}}</span>
+                  <button class="qty-btn" (click)="incrementQty(item)" [disabled]="item.cantidad >= 10">+</button>
+                </div>
+                
+                <div class="max-quantity">Máx 10 unidades</div>
+              </div>
+              
+              <div class="item-actions">
+                <button class="remove-item-btn" (click)="removeItem(item)" title="Eliminar producto">
+                  <i class="fas fa-trash-alt"></i>
+                </button>
+              </div>
+            </div>
           </div>
-          <button (click)="removeItem(item)" class="remove-btn" title="Eliminar"><i class="fas fa-trash"></i></button>
+          
+          <!-- Paginación -->
+          <div class="pagination-controls" *ngIf="getTotalPages() > 1">
+            <button 
+              class="pagination-btn" 
+              (click)="previousPage()" 
+              [disabled]="currentPage === 1">
+              <i class="fas fa-chevron-left"></i>
+            </button>
+            
+            <span class="pagination-info">
+              Página {{currentPage}} de {{getTotalPages()}}
+            </span>
+            
+            <button 
+              class="pagination-btn" 
+              (click)="nextPage()" 
+              [disabled]="currentPage === getTotalPages()">
+              <i class="fas fa-chevron-right"></i>
+            </button>
+          </div>
         </div>
       </div>
-      <div class="cart-modal-summary" *ngIf="cartItems.length > 0">
+      
+      <!-- Resumen de la orden -->
+      <div class="order-summary" *ngIf="cartItems.length > 0">
+        <h3>Resumen de la orden</h3>
+        
         <div class="summary-row">
-          <span>Subtotal:</span>
-          <span>${{subtotal | number:'1.2-2'}}</span>
+          <span>Productos ({{getSelectedItemsCount()}})</span>
+          <span>S/ {{subtotal | number:'1.0-0'}}</span>
         </div>
-        <div class="summary-row">
-          <span>IGV (18%):</span>
-          <span>${{igv | number:'1.2-2'}}</span>
+        
+        <div class="summary-row discount">
+          <span>Descuentos ({{getSelectedItemsCount()}})</span>
+          <span class="discount-amount">- S/ {{getDiscountAmount() | number:'1.0-0'}}</span>
         </div>
+        
+        <div class="summary-divider"></div>
+        
         <div class="summary-row total">
-          <span><b>Total:</b></span>
-          <span><b>${{total | number:'1.2-2'}}</b></span>
+          <span><strong>Total:</strong></span>
+          <span><strong>S/ {{total | number:'1.0-0'}}</strong></span>
         </div>
-        <div class="cart-modal-actions">
-          <button class="empty-btn" (click)="emptyCart()">Vaciar carrito</button>
-          <button class="pay-btn" (click)="proceedToCheckout()">Proceder al pago</button>
+          <div class="summary-row total-with-warranty">
+          <span><strong>Total con Imporllesinc:</strong></span>
+          <div class="warranty-total">
+            <span class="warranty-price">S/ {{totalWithWarranty | number:'1.0-0'}}</span>
+          </div>
+        </div>
+        
+        <button class="checkout-btn" (click)="proceedToCheckout()" [disabled]="getSelectedItemsCount() === 0">
+          Continuar compra
+        </button>
+          <div class="payment-options">
+          <div class="yape-option">
+            <div class="payment-icon" style="background: #722f8f; border-radius: 4px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: bold;">Y</div>
+            <span>¡Ahora puedes pagar tus compras con Yape!</span>
+          </div>
         </div>
       </div>
     </div>
