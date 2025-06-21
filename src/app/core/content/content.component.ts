@@ -1,4 +1,5 @@
 import { Component, OnInit } from '@angular/core';
+import { CommonModule } from '@angular/common';
 
 interface Product {
   id: number;
@@ -26,6 +27,8 @@ interface Brand {
 
 @Component({
   selector: 'app-content',
+  standalone: true,
+  imports: [CommonModule],
   templateUrl: './content.component.html',
   styleUrls: ['./content.component.css']
 })
