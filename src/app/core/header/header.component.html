@@ -1,37 +1,49 @@
 <!-- Header -->
 <header class="header">
-  <div class="header-container">
+  <div class="header-container flex-header">
     <!-- Logo -->
     <div class="logo-section">
       <a href="javascript:void(0)">
-      <img src="../../../assets/images/logo.png" 
-            alt="Imporllesinc Logo" 
-            class="logo">
+        <img src="assets/images/logo.png" alt="Imporllesinc Logo" class="logo">
       </a>
     </div>
-    
+
     <!-- Search Bar -->
     <div class="search-section">
       <div class="search-container">
-        <input type="text" 
-              placeholder="Buscar Productos" 
-              class="search-input"
-              [(ngModel)]="searchTerm">
+        <input 
+          type="text" 
+          [(ngModel)]="searchTerm" 
+          placeholder="Buscar productos..." 
+          class="search-input"
+          (keyup.enter)="onSearchClick()">
         <button (click)="onSearchClick()" class="search-button">
           <i class="fas fa-search"></i>
         </button>
       </div>
     </div>
-    
+
     <!-- User Actions -->
     <div class="user-actions">
-      <div class="welcome-text">Bienvenido</div>
-      <button (click)="onLoginClick()" class="auth-button">
-        Identifícate
-      </button>
-      <button (click)="onRegisterClick()" class="auth-button">
-        Regístrate
-      </button>
+      <!-- Mostrar cuando NO está autenticado -->
+      <ng-container *ngIf="!isAuthenticated">
+        <div class="welcome-text">Bienvenido</div>
+        <button (click)="onLoginClick()" class="auth-button">
+          Identifícate
+        </button>
+        <button (click)="onRegisterClick()" class="auth-button">
+          Regístrate
+        </button>
+      </ng-container>
+      
+      <!-- Mostrar cuando SÍ está autenticado -->
+      <ng-container *ngIf="isAuthenticated">
+        <div class="welcome-text">Hola, {{ nombreUsuario }}</div>
+        <button (click)="cerrarSesion()" class="auth-button">
+          Cerrar sesión
+        </button>
+      </ng-container>
+      
       <div class="cart-container" (click)="onCartClick()">
         <i class="fas fa-shopping-cart cart-icon"></i>
         <span class="cart-count">{{cartCount}}</span>
@@ -39,6 +51,169 @@
     </div>
   </div>
   
+  <!-- Login Modal -->
+  <div *ngIf="showLoginModal" class="modal-backdrop">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <img src="assets/images/logo.png" alt="Imporllesinc Logo" class="modal-logo">
+        <button class="close-btn" (click)="closeLoginModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <h2 class="login-title">Iniciar sesión para continuar</h2>
+        
+        <form [formGroup]="loginForm" (ngSubmit)="login()">
+          <div class="form-group">
+            <label for="nombreUsuario">Correo electrónico</label>
+            <input type="email" id="nombreUsuario" formControlName="nombreUsuario" class="form-control">
+            <div *ngIf="loginForm.get('nombreUsuario')?.invalid && loginForm.get('nombreUsuario')?.touched" class="error-text">
+              Este campo es obligatorio
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="contrasena">Contraseña</label>
+            <input type="password" id="contrasena" formControlName="contrasena" class="form-control">
+            <div *ngIf="loginForm.get('contrasena')?.invalid && loginForm.get('contrasena')?.touched" class="error-text">
+              Este campo es obligatorio
+            </div>
+          </div>
+          
+          <div *ngIf="error" class="error-message">{{ error }}</div>
+          
+          <div class="forgot-password text-right">
+            <a href="javascript:void(0)" (click)="forgotPassword()">¿Olvidó su contraseña?</a>
+          </div>
+          
+          <div class="form-actions">
+            <button type="submit" class="submit-btn primary-btn" [disabled]="loginForm.invalid">Iniciar sesión</button>
+          </div>
+          
+          <button type="button" class="cancel-btn" (click)="closeLoginModal()">Cerrar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- Register Modal -->
+  <div *ngIf="showRegisterModal" class="modal-backdrop">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <img src="assets/images/logo.png" alt="Imporllesinc Logo" class="modal-logo">
+        <button class="close-btn" (click)="closeRegisterModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <h2 class="login-title">Crear una cuenta</h2>
+        <form [formGroup]="registerForm" (ngSubmit)="register()">
+          <div class="form-group">
+            <label for="correoElectronico">Correo</label>
+            <input type="email" id="correoElectronico" formControlName="correoElectronico" class="form-control" placeholder="Ingresa un correo">
+            <div *ngIf="registerForm.get('correoElectronico')?.errors?.['required'] && registerForm.get('correoElectronico')?.touched" class="error-text">
+              Este campo es obligatorio
+            </div>
+            <div *ngIf="registerForm.get('correoElectronico')?.errors?.['email'] && registerForm.get('correoElectronico')?.touched" class="error-text">
+              Introduce un correo electrónico válido
+            </div>
+          </div>
+            <div class="form-group">
+            <label for="nombre">Nombre</label>
+            <input 
+              type="text" 
+              id="nombre" 
+              formControlName="nombre" 
+              class="form-control" 
+              placeholder="Ingresa un nombre"
+              (input)="onNameInput($event, 'nombre')"
+              (keypress)="onKeyPress($event, 'nombre')">
+            <div *ngIf="getNameError('nombre')" class="error-text">
+              {{ getNameError('nombre') }}
+            </div>
+          </div>
+          
+          <div class="form-group">
+            <label for="apellidos">Apellidos</label>
+            <input 
+              type="text" 
+              id="apellidos" 
+              formControlName="apellidos" 
+              class="form-control" 
+              placeholder="Ingresa apellidos"
+              (input)="onNameInput($event, 'apellidos')"
+              (keypress)="onKeyPress($event, 'apellidos')">
+            <div *ngIf="getNameError('apellidos')" class="error-text">
+              {{ getNameError('apellidos') }}
+            </div>
+          </div>
+            <div class="form-group">
+            <label for="tipoDocumento">Tipo de documento</label>
+            <div class="document-input-group">
+              <select id="tipoDocumento" formControlName="tipoDocumento" class="form-control document-select">
+                <option value="DNI">DNI</option>
+                <option value="CE">Carnet de Extranjería</option>
+                <option value="PASSPORT">Pasaporte</option>
+              </select>
+              <input 
+                type="text" 
+                formControlName="numeroDocumento" 
+                class="form-control document-input" 
+                placeholder="Ingresa un documento de identidad"
+                maxlength="8"
+                (input)="onDNIInput($event)"
+                (keypress)="onKeyPress($event, 'dni')">
+            </div>
+            <div *ngIf="getDNIError()" class="error-text">
+              {{ getDNIError() }}
+            </div>
+          </div>
+            <div class="form-group">
+            <label for="celular">Celular</label>
+            <div class="phone-input-group">
+              <span class="country-code">+51</span>
+              <input 
+                type="tel" 
+                id="celular" 
+                formControlName="celular" 
+                class="form-control phone-input" 
+                placeholder="Ingresa un celular"
+                maxlength="9"
+                (input)="onPhoneInput($event)"
+                (keypress)="onKeyPress($event, 'celular')">
+            </div>
+            <div *ngIf="getPhoneError()" class="error-text">
+              {{ getPhoneError() }}
+            </div>
+          </div>
+            <div class="form-group">
+            <label for="contrasena-registro">Contraseña</label>
+            <input type="password" id="contrasena-registro" formControlName="contrasena" class="form-control" placeholder="Ingresa una contraseña">
+            <div *ngIf="getPasswordError()" class="error-text">
+              {{ getPasswordError() }}
+            </div>            <div class="password-requirements">
+              <small>La contraseña debe tener al menos:</small>
+              <ul>
+                <li>8 caracteres</li>
+                <li>Una letra mayúscula</li>
+                <li>Un número</li>
+                <li>Un carácter especial (!&#64;#$%^&*)</li>
+              </ul>
+            </div>
+          </div>
+          
+          <div *ngIf="registerError" class="error-message">{{ registerError }}</div>
+          
+          <div class="form-actions">
+            <button type="submit" class="submit-btn primary-btn" [disabled]="registerForm.invalid">Crear cuenta</button>
+          </div>
+          
+          <div class="login-link">
+            ¿Ya tienes una cuenta? <a href="javascript:void(0)" (click)="switchToLogin()">Inicia sesión</a>
+          </div>
+          
+          <button type="button" class="cancel-btn" (click)="closeRegisterModal()">Cerrar</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
   <!-- Secondary Navigation -->
   <div class="secondary-nav">
     <div class="nav-container">
@@ -57,6 +232,50 @@
       <button (click)="onCategoryClick('servicio')" class="nav-button">
         Servicio de importación
       </button>
+    </div>
+  </div>
+
+  <!-- Modal Carrito de Compras -->
+  <div *ngIf="showCartModal" class="modal-backdrop">
+    <div class="cart-modal-content">
+      <div class="cart-modal-header">
+        <h2>Carrito de Compras</h2>
+        <button class="close-btn" (click)="closeCartModal()">&times;</button>
+      </div>
+      <div class="cart-modal-body">
+        <div *ngIf="cartItems.length === 0" class="empty-cart">Tu carrito está vacío.</div>
+        <div *ngFor="let item of cartItems" class="cart-item">
+          <img [src]="item.imagen" alt="{{item.nombre}}" class="cart-item-img">
+          <div class="cart-item-info">
+            <div class="cart-item-title">{{item.nombre}}</div>
+            <div class="cart-item-price">${{item.precio | number:'1.0-2'}}</div>
+          </div>
+          <div class="cart-item-qty">
+            <button (click)="decrementQty(item)" class="qty-btn">-</button>
+            <span>{{item.cantidad}}</span>
+            <button (click)="incrementQty(item)" class="qty-btn">+</button>
+          </div>
+          <button (click)="removeItem(item)" class="remove-btn" title="Eliminar"><i class="fas fa-trash"></i></button>
+        </div>
+      </div>
+      <div class="cart-modal-summary" *ngIf="cartItems.length > 0">
+        <div class="summary-row">
+          <span>Subtotal:</span>
+          <span>${{subtotal | number:'1.2-2'}}</span>
+        </div>
+        <div class="summary-row">
+          <span>IGV (18%):</span>
+          <span>${{igv | number:'1.2-2'}}</span>
+        </div>
+        <div class="summary-row total">
+          <span><b>Total:</b></span>
+          <span><b>${{total | number:'1.2-2'}}</b></span>
+        </div>
+        <div class="cart-modal-actions">
+          <button class="empty-btn" (click)="emptyCart()">Vaciar carrito</button>
+          <button class="pay-btn" (click)="proceedToCheckout()">Proceder al pago</button>
+        </div>
+      </div>
     </div>
   </div>
 </header>
