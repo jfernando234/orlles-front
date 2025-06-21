@@ -221,6 +221,39 @@
   gap: 24px;
 }
 
+/* Custom Products Grid for 4 cards per row */
+.custom-products-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 32px;
+  margin: 32px 0;
+}
+
+/* Responsive: 2 columns on tablets, 1 on mobile */
+@media (max-width: 1200px) {
+  .custom-products-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+@media (max-width: 700px) {
+  .custom-products-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Optional: add some padding to cards for separation */
+.custom-products-grid app-card-producto {
+  padding: 0;
+}
+
+/* If you want a visible border on each card, add this class to the card component root */
+.custom-card-border {
+  border: 2px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+  background: #fff;
+}
+
 /* Product Cards */
 .product-card {
   background: white;
@@ -339,23 +372,23 @@
   .content-main {
     padding-top: 100px;
   }
-  
+
   .product-section {
     flex-direction: column;
   }
-  
+
   .filters-sidebar {
     width: 100%;
   }
-  
+
   .carousel-title {
     font-size: 2rem;
   }
-  
+
   .carousel-text {
     font-size: 1rem;
   }
-  
+
   .products-grid {
     grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
     gap: 16px;
