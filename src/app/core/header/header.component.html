@@ -247,121 +247,237 @@
         </div>
         <button class="close-btn" (click)="closeCartModal()">&times;</button>
       </div>
-      
-      <div class="cart-modal-body">
-        <div *ngIf="cartItems.length === 0" class="empty-cart">
-          <i class="fas fa-shopping-cart"></i>
-          <p>Tu carrito está vacío</p>
-          <p class="empty-subtitle">Agrega productos para continuar</p>
-        </div>
-        
-        <div *ngIf="cartItems.length > 0" class="cart-content">
-          <!-- Selector todos -->
-          <div class="select-all">
-            <input type="checkbox" id="selectAll" [checked]="allSelected" (change)="toggleSelectAll()">
-            <label for="selectAll">Seleccionar todos</label>
+        <div class="cart-modal-body">
+        <!-- Contenido principal del carrito -->
+        <div class="cart-main-content">
+          <div *ngIf="cartItems.length === 0" class="empty-cart">
+            <i class="fas fa-shopping-cart"></i>
+            <p>Tu carrito está vacío</p>
+            <p class="empty-subtitle">Agrega productos para continuar</p>
           </div>
           
-          <!-- Items del carrito con paginación -->
-          <div class="cart-items-list">
-            <div *ngFor="let item of getPaginatedItems()" class="cart-item">
-              <div class="item-checkbox">
-                <input type="checkbox" [id]="'item-' + item.id" [checked]="item.selected" (change)="toggleItemSelection(item)">
-              </div>
-              
-              <div class="item-image">
-                <img [src]="item.imagen" [alt]="item.nombre">
-              </div>
-              
-              <div class="item-details">
-                <h4 class="item-title">{{item.nombre}}</h4>
-                <p class="item-brand">APPLE</p>
-                <p class="item-color">Color: <span class="color-value">{{item.color || 'Azul'}}</span></p>
-              </div>
-              
-              <div class="item-pricing">
-                <div class="price-section">
-                  <!-- <div class="discount-badge" *ngIf="item.descuento">-{{item.descuento}}%</div> -->
-                  <div class="current-price">S/ {{item.precio | number:'1.0-0'}}</div>
-                  <div class="original-price" *ngIf="item.precioOriginal">S/ {{item.precioOriginal | number:'1.0-0'}}</div>
+          <div *ngIf="cartItems.length > 0" class="cart-content">
+            <!-- Selector todos -->
+            <div class="select-all">
+              <input type="checkbox" id="selectAll" [checked]="allSelected" (change)="toggleSelectAll()">
+              <label for="selectAll">Seleccionar todos</label>
+            </div>
+            
+            <!-- Items del carrito sin paginación -->
+            <div class="cart-items-list">
+              <div *ngFor="let item of cartItems" class="cart-item">
+                <div class="item-checkbox">
+                  <input type="checkbox" [id]="'item-' + item.id" [checked]="item.selected" (change)="toggleItemSelection(item)">
                 </div>
                 
-                <div class="quantity-controls">
-                  <button class="qty-btn" (click)="decrementQty(item)" [disabled]="item.cantidad <= 1">-</button>
-                  <span class="quantity">{{item.cantidad}}</span>
-                  <button class="qty-btn" (click)="incrementQty(item)" [disabled]="item.cantidad >= 10">+</button>
+                <div class="item-image">
+                  <img [src]="item.imagen" [alt]="item.nombre">
                 </div>
                 
-                <div class="max-quantity">Máx 10 unidades</div>
-              </div>
-              
-              <div class="item-actions">
-                <button class="remove-item-btn" (click)="removeItem(item)" title="Eliminar producto">
-                  <i class="fas fa-trash-alt"></i>
-                </button>
+                <div class="item-details">
+                  <h4 class="item-title">{{item.nombre}}</h4>
+                  <p class="item-brand">APPLE</p>
+                  <p class="item-color">Color: <span class="color-value">{{item.color || 'Azul'}}</span></p>
+                </div>
+                
+                <div class="item-pricing">
+                  <div class="price-section">
+                    <!-- <div class="discount-badge" *ngIf="item.descuento">-{{item.descuento}}%</div> -->
+                    <div class="current-price">S/ {{item.precio | number:'1.0-0'}}</div>
+                    <div class="original-price" *ngIf="item.precioOriginal">S/ {{item.precioOriginal | number:'1.0-0'}}</div>
+                  </div>
+                  
+                  <div class="quantity-controls">
+                    <button class="qty-btn" (click)="decrementQty(item)" [disabled]="item.cantidad <= 1">-</button>
+                    <span class="quantity">{{item.cantidad}}</span>
+                    <button class="qty-btn" (click)="incrementQty(item)" [disabled]="item.cantidad >= 10">+</button>
+                  </div>
+                  
+                  <div class="max-quantity">Máx 10 unidades</div>
+                </div>
+                
+                <div class="item-actions">
+                  <button class="remove-item-btn" (click)="removeItem(item)" title="Eliminar producto">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </div>
               </div>
             </div>
           </div>
+        </div>
+        
+        <!-- Resumen de la orden (lado derecho) -->
+        <div class="order-summary" *ngIf="cartItems.length > 0">
+          <h3>Resumen de la orden</h3>
           
-          <!-- Paginación -->
-          <div class="pagination-controls" *ngIf="getTotalPages() > 1">
-            <button 
-              class="pagination-btn" 
-              (click)="previousPage()" 
-              [disabled]="currentPage === 1">
-              <i class="fas fa-chevron-left"></i>
+          <div class="summary-row">
+            <span>Productos ({{getSelectedItemsCount()}})</span>
+            <span>S/ {{subtotal | number:'1.0-0'}}</span>
+          </div>
+          
+          <div class="summary-row discount">
+            <span>Descuentos ({{getSelectedItemsCount()}})</span>
+            <span class="discount-amount">- S/ {{getDiscountAmount() | number:'1.0-0'}}</span>
+          </div>
+          
+          <div class="summary-divider"></div>
+          
+          <div class="summary-row total">
+            <span><strong>Total:</strong></span>
+            <span><strong>S/ {{total | number:'1.0-0'}}</strong></span>
+          </div>
+          
+          <div class="summary-row total-with-warranty">
+            <span><strong>Total con Imporllesinc:</strong></span>
+            <div class="warranty-total">
+              <span class="warranty-price">S/ {{totalWithWarranty | number:'1.0-0'}}</span>
+            </div>
+          </div>
+          
+          <button class="checkout-btn" (click)="proceedToCheckout()" [disabled]="getSelectedItemsCount() === 0">
+            Continuar compra
+          </button>
+          
+          <div class="payment-options">
+            <div class="yape-option">
+              <div class="payment-icon" style="background: #722f8f; border-radius: 4px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: bold;">Y</div>
+              <span>¡Ahora puedes pagar tus compras con Yape!</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Checkout -->
+  <div *ngIf="showCheckoutModal" class="modal-backdrop">
+    <div class="checkout-modal-content">
+      <!-- Header del modal -->
+      <div class="checkout-modal-header">
+        <h2>Resumen de la compra</h2>
+        <button class="close-btn" (click)="closeCheckoutModal()">&times;</button>
+      </div>
+      
+      <div class="checkout-modal-body">
+        <!-- Sección de dirección -->
+        <div class="address-section">
+          <div class="address-icon">
+            <i class="fas fa-map-marker-alt"></i>
+          </div>
+          <div class="address-content">
+            <label>Dirección -</label>
+            <input 
+              type="text" 
+              [(ngModel)]="deliveryAddress"
+              placeholder="Asd, 1232323,Acochaca,Ancash"
+              class="address-input">
+            <button class="change-address-btn">
+              <i class="fas fa-edit"></i>
+              Cambiar
             </button>
-            
-            <span class="pagination-info">
-              Página {{currentPage}} de {{getTotalPages()}}
-            </span>
-            
-            <button 
-              class="pagination-btn" 
-              (click)="nextPage()" 
-              [disabled]="currentPage === getTotalPages()">
-              <i class="fas fa-chevron-right"></i>
-            </button>
+          </div>
+        </div>
+
+        <!-- Sección de tipo de entrega -->
+        <div class="delivery-section">
+          <h3>Elige un tipo de entrega</h3>
+          
+          <!-- Opción: Retira tu pedido -->
+          <div class="delivery-option" 
+               [class.selected]="selectedDeliveryType === 'pickup'"
+               (click)="selectDeliveryType('pickup')">
+            <div class="delivery-icon">
+              <i class="fas fa-store"></i>
+            </div>
+            <div class="delivery-details">
+              <h4>Retira tu pedido</h4>
+              <p>No hay tiendas cercanas disponibles en la zona seleccionada</p>
+              <button class="change-btn">Cambiar</button>
+            </div>
+          </div>
+
+          <!-- Opción: Envío Express -->
+          <div class="delivery-option" 
+               [class.selected]="selectedDeliveryType === 'express'"
+               (click)="selectDeliveryType('express')">
+            <div class="delivery-icon">
+              <i class="fas fa-shipping-fast"></i>
+            </div>
+            <div class="delivery-details">
+              <h4>Envío Express</h4>
+              <p class="unavailable">No disponible</p>
+              <p class="why-not">¿Por qué?</p>
+            </div>
+          </div>
+
+          <!-- Opción: Envío en fecha programada -->
+          <div class="delivery-option" 
+               [class.selected]="selectedDeliveryType === 'scheduled'"
+               (click)="selectDeliveryType('scheduled')">
+            <div class="delivery-icon">
+              <i class="fas fa-calendar-alt"></i>
+            </div>
+            <div class="delivery-details">
+              <h4>Envío en fecha programada</h4>
+              <p class="unavailable">No disponible</p>
+              <p class="why-not">¿Por qué?</p>
+            </div>
+          </div>
+
+          <!-- Opción: Envío en rango de fechas -->
+          <div class="delivery-option" 
+               [class.selected]="selectedDeliveryType === 'range'"
+               (click)="selectDeliveryType('range')">
+            <div class="delivery-icon">
+              <i class="fas fa-calendar-week"></i>
+            </div>
+            <div class="delivery-details">
+              <h4>Envío en rango de fechas</h4>
+              <p class="unavailable">No disponible</p>
+              <p class="why-not">¿Por qué?</p>
+            </div>
           </div>
         </div>
       </div>
       
-      <!-- Resumen de la orden -->
-      <div class="order-summary" *ngIf="cartItems.length > 0">
-        <h3>Resumen de la orden</h3>
+      <!-- Resumen de la orden (lado derecho) -->
+      <div class="checkout-summary">
+        <h3>Resumen de la compra</h3>
         
-        <div class="summary-row">
+        <div class="summary-item">
           <span>Productos ({{getSelectedItemsCount()}})</span>
           <span>S/ {{subtotal | number:'1.0-0'}}</span>
         </div>
         
-        <div class="summary-row discount">
+        <div class="summary-item discount" *ngIf="getDiscountAmount() > 0">
           <span>Descuentos ({{getSelectedItemsCount()}})</span>
           <span class="discount-amount">- S/ {{getDiscountAmount() | number:'1.0-0'}}</span>
         </div>
         
         <div class="summary-divider"></div>
         
-        <div class="summary-row total">
+        <div class="summary-item total">
           <span><strong>Total:</strong></span>
           <span><strong>S/ {{total | number:'1.0-0'}}</strong></span>
         </div>
-          <div class="summary-row total-with-warranty">
-          <span><strong>Total con Imporllesinc:</strong></span>
-          <div class="warranty-total">
-            <span class="warranty-price">S/ {{totalWithWarranty | number:'1.0-0'}}</span>
+        
+        <div class="summary-item total-with-service">
+          <span><strong>Total con Falabella:</strong></span>
+          <div class="service-total">
+            <span class="service-icons">
+              <img src="assets/images/mastercard.png" alt="Mastercard" class="payment-icon">
+              <img src="assets/images/visa.png" alt="Visa" class="payment-icon">
+              <img src="assets/images/amex.png" alt="American Express" class="payment-icon">
+            </span>
+            <span class="service-price">S/ {{totalWithWarranty | number:'1.0-0'}}</span>
           </div>
         </div>
         
-        <button class="checkout-btn" (click)="proceedToCheckout()" [disabled]="getSelectedItemsCount() === 0">
-          Continuar compra
+        <button class="payment-btn" 
+                (click)="proceedToPayment()" 
+                [disabled]="!selectedDeliveryType">
+          Ir a pagar
         </button>
-          <div class="payment-options">
-          <div class="yape-option">
-            <div class="payment-icon" style="background: #722f8f; border-radius: 4px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: bold;">Y</div>
-            <span>¡Ahora puedes pagar tus compras con Yape!</span>
-          </div>
-        </div>
       </div>
     </div>
   </div>

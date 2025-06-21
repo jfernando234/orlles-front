@@ -410,10 +410,42 @@ export class HeaderComponent implements OnInit {
     this.cartItems = [];
     this.updateCartCount();
   }
-
+  // Propiedades para el modal de checkout
+  showCheckoutModal = false;
+  selectedDeliveryType = '';
+  deliveryAddress = '';
+  
   proceedToCheckout() {
     console.log('Proceder al pago');
     this.closeCartModal();
+    this.openCheckoutModal();
+  }
+
+  openCheckoutModal() {
+    this.showCheckoutModal = true;
+  }
+
+  closeCheckoutModal() {
+    this.showCheckoutModal = false;
+    this.selectedDeliveryType = '';
+    this.deliveryAddress = '';
+  }
+
+  selectDeliveryType(type: string) {
+    this.selectedDeliveryType = type;
+  }
+
+  proceedToPayment() {
+    if (!this.selectedDeliveryType) {
+      alert('Por favor selecciona un tipo de entrega');
+      return;
+    }
+    
+    console.log('Tipo de entrega seleccionado:', this.selectedDeliveryType);
+    console.log('Dirección:', this.deliveryAddress);
+    
+    // Aquí iría la lógica para proceder al pago
+    this.closeCheckoutModal();
   }
 
   // Métodos para redes sociales
