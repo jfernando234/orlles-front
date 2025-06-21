@@ -24,7 +24,7 @@ export class CustomValidators {
     }
     return null;
   }
-    static peruDNI(control: AbstractControl): ValidationErrors | null {
+  static peruDNI(control: AbstractControl): ValidationErrors | null {
     const value = control.value;
     if (!value) return null;
     
@@ -57,6 +57,46 @@ export class CustomValidators {
     }
     
     return null;
+  }
+  
+  static carnetExtranjeria(control: AbstractControl): ValidationErrors | null {
+    const value = control.value;
+    if (!value) return null;
+    
+    // Carnet de Extranjería: 9 dígitos que empiezan con 0
+    if (!/^0\d{8}$/.test(value)) {
+      return { invalidCarnet: true };
+    }
+    
+    return null;
+  }
+  
+  static passport(control: AbstractControl): ValidationErrors | null {
+    const value = control.value;
+    if (!value) return null;
+    
+    // Pasaporte: 9 caracteres alfanuméricos
+    if (!/^[A-Z0-9]{9}$/.test(value.toUpperCase())) {
+      return { invalidPassport: true };
+    }
+    
+    return null;
+  }
+  
+  // Validador dinámico que usa el tipo de documento
+  static dynamicDocumentValidator(tipoDocumento: string) {
+    return (control: AbstractControl): ValidationErrors | null => {
+      switch (tipoDocumento) {
+        case 'DNI':
+          return CustomValidators.peruDNI(control);
+        case 'CE':
+          return CustomValidators.carnetExtranjeria(control);
+        case 'PASSPORT':
+          return CustomValidators.passport(control);
+        default:
+          return null;
+      }
+    };
   }
   
   static peruPhone(control: AbstractControl): ValidationErrors | null {
@@ -140,7 +180,6 @@ export class HeaderComponent implements OnInit {
   get total(): number {
     return this.subtotal + this.igv;
   }
-
   constructor(private router: Router, private fb: FormBuilder, private authService: AuthService) {
     this.loginForm = this.fb.group({
       nombreUsuario: ['', Validators.required],
@@ -152,10 +191,31 @@ export class HeaderComponent implements OnInit {
       nombre: ['', [Validators.required, CustomValidators.onlyLetters]],
       apellidos: ['', [Validators.required, CustomValidators.onlyLetters]],
       tipoDocumento: ['DNI', Validators.required],
-      numeroDocumento: ['', [Validators.required, CustomValidators.peruDNI]],
+      numeroDocumento: ['', [Validators.required, CustomValidators.dynamicDocumentValidator('DNI')]],
       celular: ['', [Validators.required, CustomValidators.peruPhone]],
       contrasena: ['', [Validators.required, CustomValidators.strongPassword]]
     });
+    
+    // Escuchar cambios en el tipo de documento
+    this.registerForm.get('tipoDocumento')?.valueChanges.subscribe(tipo => {
+      this.updateDocumentValidation(tipo);
+    });
+  }
+  
+  updateDocumentValidation(tipoDocumento: string) {
+    const documentControl = this.registerForm.get('numeroDocumento');
+    
+    // Limpiar el campo
+    documentControl?.setValue('');
+    
+    // Actualizar validadores
+    documentControl?.setValidators([
+      Validators.required,
+      CustomValidators.dynamicDocumentValidator(tipoDocumento)
+    ]);
+    
+    // Actualizar validación
+    documentControl?.updateValueAndValidity();
   }
 
   ngOnInit() {
@@ -344,16 +404,34 @@ export class HeaderComponent implements OnInit {
       this.registerForm.get(field)?.setValue(value);
     }
   }
-    onDNIInput(event: Event) {
+  onDNIInput(event: Event) {
     const input = event.target as HTMLInputElement;
     let value = input.value;
+    const tipoDocumento = this.registerForm.get('tipoDocumento')?.value;
     
-    // Solo permitir números, máximo 8 dígitos
-    value = value.replace(/[^0-9]/g, '').slice(0, 8);
-    
-    // Si el primer dígito es 0, eliminarlo
-    if (value.startsWith('0') && value.length > 1) {
-      value = value.substring(1);
+    switch (tipoDocumento) {
+      case 'DNI':
+        // Solo permitir números, máximo 8 dígitos
+        value = value.replace(/[^0-9]/g, '').slice(0, 8);
+        // Si el primer dígito es 0, eliminarlo
+        if (value.startsWith('0') && value.length > 1) {
+          value = value.substring(1);
+        }
+        break;
+        
+      case 'CE':
+        // Solo permitir números, máximo 9 dígitos, debe empezar con 0
+        value = value.replace(/[^0-9]/g, '').slice(0, 9);
+        // Si no empieza con 0, agregarlo
+        if (value.length > 0 && !value.startsWith('0')) {
+          value = '0' + value.substring(0, 8);
+        }
+        break;
+        
+      case 'PASSPORT':
+        // Permitir letras y números, máximo 9 caracteres, convertir a mayúsculas
+        value = value.replace(/[^A-Za-z0-9]/g, '').slice(0, 9).toUpperCase();
+        break;
     }
     
     if (input.value !== value) {
@@ -392,7 +470,7 @@ export class HeaderComponent implements OnInit {
       this.registerForm.get('celular')?.updateValueAndValidity();
     }
   }
-    onKeyPress(event: KeyboardEvent, field: string) {
+  onKeyPress(event: KeyboardEvent, field: string) {
     const char = event.key;
     const input = event.target as HTMLInputElement;
     const currentValue = input.value;
@@ -411,16 +489,42 @@ export class HeaderComponent implements OnInit {
         }
         break;
       case 'dni':
-        if (!/[0-9]/.test(char)) {
-          event.preventDefault();
-          return false;
-        }
-        // No permitir 0 como primer dígito
-        if (char === '0' && currentValue.length === 0) {
-          event.preventDefault();
-          return false;
+        const tipoDocumento = this.registerForm.get('tipoDocumento')?.value;
+        
+        switch (tipoDocumento) {
+          case 'DNI':
+            if (!/[0-9]/.test(char)) {
+              event.preventDefault();
+              return false;
+            }
+            // No permitir 0 como primer dígito
+            if (char === '0' && currentValue.length === 0) {
+              event.preventDefault();
+              return false;
+            }
+            break;
+            
+          case 'CE':
+            if (!/[0-9]/.test(char)) {
+              event.preventDefault();
+              return false;
+            }
+            // Solo permitir 0 como primer dígito
+            if (currentValue.length === 0 && char !== '0') {
+              event.preventDefault();
+              return false;
+            }
+            break;
+            
+          case 'PASSPORT':
+            if (!/[a-zA-Z0-9]/.test(char)) {
+              event.preventDefault();
+              return false;
+            }
+            break;
         }
         break;
+        
       case 'celular':
         if (!/[0-9]/.test(char)) {
           event.preventDefault();
@@ -460,11 +564,24 @@ export class HeaderComponent implements OnInit {
     }
     return '';
   }
-    getDNIError(): string {
+  getDNIError(): string {
     const control = this.registerForm.get('numeroDocumento');
+    const tipoDocumento = this.registerForm.get('tipoDocumento')?.value;
+    
     if (control?.errors && control.touched) {
       if (control.errors['required']) return 'Este campo es obligatorio';
-      if (control.errors['invalidDNI']) return 'DNI inválido: debe tener 8 dígitos, no empezar con 0 y ser un número válido';
+      
+      switch (tipoDocumento) {
+        case 'DNI':
+          if (control.errors['invalidDNI']) return 'DNI inválido: debe tener 8 dígitos, no empezar con 0 y ser un número válido';
+          break;
+        case 'CE':
+          if (control.errors['invalidCarnet']) return 'Carnet inválido: debe tener 9 dígitos y empezar con 0';
+          break;
+        case 'PASSPORT':
+          if (control.errors['invalidPassport']) return 'Pasaporte inválido: debe tener 9 caracteres alfanuméricos';
+          break;
+      }
     }
     return '';
   }
@@ -487,5 +604,34 @@ export class HeaderComponent implements OnInit {
       if (control.errors['missingSpecialChar']) return 'Debe contener al menos un carácter especial';
     }
     return '';
+  }
+
+  // Método para obtener placeholder dinámico
+  getDocumentPlaceholder(): string {
+    const tipoDocumento = this.registerForm.get('tipoDocumento')?.value;
+    switch (tipoDocumento) {
+      case 'DNI':
+        return '12345678';
+      case 'CE':
+        return '012345678';
+      case 'PASSPORT':
+        return 'ABC123456';
+      default:
+        return 'Ingresa documento';
+    }
+  }
+  
+  // Método para obtener maxlength dinámico
+  getDocumentMaxLength(): number {
+    const tipoDocumento = this.registerForm.get('tipoDocumento')?.value;
+    switch (tipoDocumento) {
+      case 'DNI':
+        return 8;
+      case 'CE':
+      case 'PASSPORT':
+        return 9;
+      default:
+        return 9;
+    }
   }
 }

@@ -1,23 +1,24 @@
 import { Component } from '@angular/core';
-import { RouterOutlet } from '@angular/router';
+import { RouterModule, RouterOutlet } from '@angular/router';
+import { CommonModule } from '@angular/common';
 import { HeaderComponent } from './core/header/header.component';
-import { ContentComponent } from './core/content/content.component';
 import { FooterComponent } from './core/footer/footer.component';
-import { AdminComponent } from "./admin/admin.component";
+import { ContentComponent } from './core/content/content.component';
 
 @Component({
   selector: 'app-root',
-  templateUrl: './app.component.html',
-  styleUrls: ['./app.component.css'],
   standalone: true,
   imports: [
+    RouterModule,
     RouterOutlet,
+    CommonModule,
     HeaderComponent,
     ContentComponent,
-    FooterComponent,
-    AdminComponent
-]
+    FooterComponent
+  ],
+  templateUrl: './app.component.html',
+  styleUrls: ['./app.component.css']
 })
 export class AppComponent {
-  title = 'proyectosoluciones';
+  title = 'orlles-front';
 }

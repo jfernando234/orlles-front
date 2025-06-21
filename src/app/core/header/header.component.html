@@ -112,35 +112,37 @@
             </div>
             <div *ngIf="registerForm.get('correoElectronico')?.errors?.['email'] && registerForm.get('correoElectronico')?.touched" class="error-text">
               Introduce un correo electrónico válido
-            </div>
-          </div>
-            <div class="form-group">
-            <label for="nombre">Nombre</label>
-            <input 
-              type="text" 
-              id="nombre" 
-              formControlName="nombre" 
-              class="form-control" 
-              placeholder="Ingresa un nombre"
-              (input)="onNameInput($event, 'nombre')"
-              (keypress)="onKeyPress($event, 'nombre')">
-            <div *ngIf="getNameError('nombre')" class="error-text">
-              {{ getNameError('nombre') }}
-            </div>
-          </div>
+            </div>          </div>
           
-          <div class="form-group">
-            <label for="apellidos">Apellidos</label>
-            <input 
-              type="text" 
-              id="apellidos" 
-              formControlName="apellidos" 
-              class="form-control" 
-              placeholder="Ingresa apellidos"
-              (input)="onNameInput($event, 'apellidos')"
-              (keypress)="onKeyPress($event, 'apellidos')">
-            <div *ngIf="getNameError('apellidos')" class="error-text">
-              {{ getNameError('apellidos') }}
+          <div class="form-row">
+            <div class="form-group form-group-half">
+              <label for="nombre">Nombre</label>
+              <input 
+                type="text" 
+                id="nombre" 
+                formControlName="nombre" 
+                class="form-control" 
+                placeholder="Ingresa un nombre"
+                (input)="onNameInput($event, 'nombre')"
+                (keypress)="onKeyPress($event, 'nombre')">
+              <div *ngIf="getNameError('nombre')" class="error-text">
+                {{ getNameError('nombre') }}
+              </div>
+            </div>
+            
+            <div class="form-group form-group-half">
+              <label for="apellidos">Apellidos</label>
+              <input 
+                type="text" 
+                id="apellidos" 
+                formControlName="apellidos" 
+                class="form-control" 
+                placeholder="Ingresa apellidos"
+                (input)="onNameInput($event, 'apellidos')"
+                (keypress)="onKeyPress($event, 'apellidos')">
+              <div *ngIf="getNameError('apellidos')" class="error-text">
+                {{ getNameError('apellidos') }}
+              </div>
             </div>
           </div>
             <div class="form-group">
@@ -150,13 +152,12 @@
                 <option value="DNI">DNI</option>
                 <option value="CE">Carnet de Extranjería</option>
                 <option value="PASSPORT">Pasaporte</option>
-              </select>
-              <input 
+              </select>              <input 
                 type="text" 
                 formControlName="numeroDocumento" 
                 class="form-control document-input" 
-                placeholder="Ingresa un documento de identidad"
-                maxlength="8"
+                [placeholder]="getDocumentPlaceholder()"
+                [maxlength]="getDocumentMaxLength()"
                 (input)="onDNIInput($event)"
                 (keypress)="onKeyPress($event, 'dni')">
             </div>

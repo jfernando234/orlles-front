@@ -813,6 +813,34 @@
   box-shadow: 0 0 0 0.2rem rgba(40, 167, 69, 0.1);
 }
 
+/* Estilos para campos en la misma fila */
+.form-row {
+  display: flex;
+  gap: 16px;
+  width: 100%;
+}
+
+.form-group-half {
+  flex: 1;
+  min-width: 0; /* Permite que el flex funcione correctamente */
+}
+
+.form-group-half .form-control {
+  width: 100%;
+}
+
+/* Responsive: En pantallas pequeñas, volver a columna */
+@media (max-width: 576px) {
+  .form-row {
+    flex-direction: column;
+    gap: 0;
+  }
+  
+  .form-group-half {
+    margin-bottom: 16px;
+  }
+}
+
 /* Responsive */
 @media (max-width: 768px) {
   .header-container {
