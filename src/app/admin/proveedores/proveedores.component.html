@@ -13,36 +13,36 @@
                         <i class="fas fa-plus-circle me-2"></i> Registrar Proveedores
                     </div>
                     <div class="card-body">
-                        <form id="proveedor-form">
+                        <form [formGroup]="form" >
                             <div class="row g-3">
                                 <div class="col-md-5">
                                     <label for="nombre-proveedor" class="form-label">Nombre o Razón Social</label>
-                                    <input type="text" class="form-control" id="nombre-proveedor" placeholder=""
-                                        required>
+                                    <input class="form-control" type="text"
+                                    formControlName="nombrerazon">
                                 </div>
                                 <div class="col-md-2">
                                     <label for="pais" class="form-label">País</label>
-                                    <input type="text" class="form-control" id="pais" required>
+                                    <input type="text" class="form-control" formControlName="pais">
                                 </div>
                                 <div class="col-md-5">
                                     <label for="contacto" class="form-label">Persona de Contacto</label>
-                                    <input type="text" class="form-control" id="contacto">
+                                    <input type="text" class="form-control" formControlName="contacto">
                                 </div>
                                 <div class="col-md-4">
                                     <label for="correo-electronico" class="form-label">Correo Electrónico</label>
-                                    <input type="email" class="form-control" id="correo-electronico" required>
+                                    <input type="email" class="form-control" formControlName="correo">
                                 </div>
                                 <div class="col-md-3">
                                     <label for="telefono" class="form-label">Teléfono</label>
-                                    <input type="text" class="form-control" id="telefono" required>
+                                    <input type="text" class="form-control" formControlName="telefono">
                                 </div>
                                 <div class="col-md-3">
                                     <label for="tiempo-entrega" class="form-label">Tiempo de Entrega</label>
-                                    <input type="number" class="form-control" id="tiempo-entrega" min="0" required>
+                                    <input type="number" class="form-control" formControlName="tiempoentrega" min="0" >
                                 </div>
                                 <div class="col-md-2">
                                     <label for="estado" class="form-label">Estado</label>
-                                    <select class="form-control" id="estado" required>
+                                    <select class="form-control" formControlName="estado">
                                         <option value="" disabled selected>Seleccione</option>
                                         <option value="Activo">Activo</option>
                                         <option value="Inactivo">Inactivo</option>
@@ -51,12 +51,12 @@
                                 </div>
                                 <div class="col-md-12">
                                     <label for="certificaciones" class="form-label">Certificaciones</label>
-                                    <textarea class="form-control" id="certificaciones" rows="1"></textarea>
+                                    <textarea class="form-control" formControlName="certificaciones" rows="1"></textarea>
                                 </div>
                                 <div class="col-12">
                                     <div class="form-actions">
-                                        <button type="submit" class="btn btn-primary" id="proveedor-submit-btn">
-                                            <i class="fas fa-save me-1"></i> Agregar
+                                        <button type="button" class="btn btn-primary" id="producto-submit-btn" (click)="guardarPorveedor()">
+                                          <i class="fas fa-save me-1"></i> Agregar
                                         </button>
                                         <button type="button" class="btn btn-secondary" id="proveedor-cancel-btn"
                                             style="display:none">
@@ -102,9 +102,20 @@
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    <tr>
-                                        <td colspan="12" class="text-center py-4">Cargando datos...</td>
-                                    </tr>
+                                  <tr *ngFor="let p of proveedor">
+                                    <td>{{ p.id }}</td>
+                                    <td>{{ p.nombre}}</td>
+                                    <td>{{ p.pais }}</td>
+                                    <td>{{ p.contacto }}</td>
+                                    <td>{{ p.correoElectronico }}</td>
+                                    <td>{{ p.telefono }}</td>
+                                    <td>{{ p.tiempoEntregaPromedio }}</td>
+                                    <td>
+                                      <span *ngIf="p.estado == '1'">Activo</span>
+                                      <span *ngIf="p.estado == '0'">Inactivo</span>
+                                      <span *ngIf="p.estado != '1' && p.estado != '0'">{{ p.estado }}</span>
+                                    </td>
+                                  </tr>
                                 </tbody>
                             </table>
                         </div>

@@ -80,7 +80,6 @@
             <div class="checkbox-item" *ngFor="let brand of brands">
               <input type="checkbox"
                      [id]="'brand-' + brand.id"
-
                      (change)="onBrandChange()">
               <label [for]="'brand-' + brand.id">{{brand.name}}</label>
             </div>
@@ -90,48 +89,12 @@
     </div>
 
     <!-- Products Grid -->
-    <div class="products-container">
-      <h2 class="products-title">Laptops disponibles</h2>
-      <div class="products-grid">
-        <div class="product-card" *ngFor="let product of filteredProducts">
-          <div class="product-image-container">
-            <img [src]="product.image"
-                 [alt]="product.name"
-                 class="product-image">
-            <div class="product-actions">
-              <button class="action-button"
-                      (click)="onViewProduct(product.id)"
-                      title="Ver detalles">
-                <i class="fas fa-eye"></i>
-              </button>
-              <button class="action-button"
-                      (click)="onToggleFavorite(product.id)"
-                      [class.active]="isFavorite(product.id)"
-                      title="Favoritos">
-                <i [class]="isFavorite(product.id) ? 'fas fa-heart' : 'far fa-heart'"></i>
-              </button>
-              <button class="action-button"
-                      (click)="onAddToCart(product.id)"
-                      title="Añadir al carrito">
-                <i class="fas fa-cart-plus"></i>
-              </button>
-            </div>
-          </div>
-          <div class="product-info">
-            <h3 class="product-name">{{product.name}}</h3>
-            <p class="product-description">{{product.description}}</p>
-            <div class="product-pricing">
-              <div class="price-container">
-                <span class="current-price">${{product.price}}</span>
-                <span class="old-price" *ngIf="product.oldPrice">${{product.oldPrice}}</span>
-              </div>
-              <span class="discount-badge" *ngIf="product.discount">
-                -{{product.discount}}%
-              </span>
-            </div>
-          </div>
-        </div>
-      </div>
+    <div class="custom-products-grid">
+      <app-card-producto
+      *ngFor="let prod of productos"
+       [producto]="prod"
+      [getImagenUrl]="getImagenUrl.bind(this)">
+    </app-card-producto>
     </div>
   </div>
 </main>
