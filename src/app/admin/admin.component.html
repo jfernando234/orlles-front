@@ -1,1 +1,58 @@
+<<<<<<< HEAD
+<!-- Panel izquierdo statico -->
+<!-- Sidebar -->
+<div class="sidebar">
+    <div class="brand">
+        <h5 class="text-center">Panel Admin</h5>
+    </div>
+    <div>
+        <ul class="nav flex-column">
+            <li class="nav-item">
+                <a class="nav-link" href="javascript:void(0)" (click)="mostrarProducto()">
+                    <i class="fas fa-box"></i> Productos
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="javascript:void(0)" (click)="mostrarProvedores()">
+                    <i class="fas fa-truck"></i> Proveedores
+                </a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" href="javascript:void(0)" (click)="mostrarClientes()">
+                    <i class="fas fa-users"></i> Clientes
+                </a>
+            </li>
+        </ul>
+    </div>
+
+
+    <div class="user-info mt-4">
+        <div class="align-items-center">
+            <i class="fas fa-user-circle me-2"></i>
+            <small>Administrador</small>
+        </div>
+        <div class="mt-2 call-to-action">
+            <a class="btn btn-sm btn-outline-light w-100" id="logout-btn" href="javascript:void(0)" (click)="logout()">
+                <i class="fas fa-sign-out-alt me-2"></i> Cerrar Sesión
+            </a>
+        </div>
+    </div>
+</div>
+
+<!-- Contenido principal -->
+<ng-container *ngIf="mostrarProductoComponent">
+    <app-producto></app-producto>
+</ng-container>
+<ng-container *ngIf="mostrarProveedoresComponent">
+    <app-proveedores></app-proveedores>
+</ng-container>
+<ng-container *ngIf="mostrarClientesComponent">
+    <app-clientes></app-clientes>
+</ng-container>
+
+
+<!-- Estilos para el sidebar -->
+<link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+=======
 <p>admin works!</p>
+>>>>>>> e51448d35ddb9434961cc345848be935403f1ee2
