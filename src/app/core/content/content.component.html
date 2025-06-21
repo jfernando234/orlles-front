@@ -2,7 +2,7 @@
   <!-- Carousel -->
   <div class="carousel-container">
     <div class="carousel-slide active">
-      <img src="https://cdn.discordapp.com/attachments/1111808588231479369/1378299524803727360/3-4.png?ex=683c18f6&is=683ac776&hm=c98f496fd82fcb9a4ccecc422dff099296022feb63ba31e0058e1e2bd0b756c6&" 
+      <img src=""
           alt="Ofertas especiales" class="carousel-image">
       <div class="carousel-overlay">
         <div class="carousel-content">
@@ -15,7 +15,7 @@
       </div>
     </div>
     <div class="carousel-slide">
-      <img src="https://cdn.discordapp.com/attachments/1111808588231479369/1378300753722085537/Copia-de-Portada-Facebook-Bebida-Mas-Sabor-Retro-Vintage-Rojo-Amarillo-Portada-para-Facebook-2.png?ex=683c1a1b&is=683ac89b&hm=d9903ed2089467f7d601c13b2ebbe60b86d7c9bbf0020f224cbeefd83c972a73&" 
+      <img src="https://cdn.discordapp.com/attachments/1111808588231479369/1378300753722085537/Copia-de-Portada-Facebook-Bebida-Mas-Sabor-Retro-Vintage-Rojo-Amarillo-Portada-para-Facebook-2.png?ex=683c1a1b&is=683ac89b&hm=d9903ed2089467f7d601c13b2ebbe60b86d7c9bbf0020f224cbeefd83c972a73&"
           alt="Nuevos modelos" class="carousel-image">
       <div class="carousel-overlay">
         <div class="carousel-content">
@@ -30,27 +30,27 @@
     <button class="carousel-nav prev" (click)="previousSlide()">‹</button>
     <button class="carousel-nav next" (click)="nextSlide()">›</button>
   </div>
-  
+
   <!-- Product Section -->
   <div class="product-section">
     <!-- Filters Column -->
     <div class="filters-sidebar">
       <div class="filter-card">
         <h3 class="filter-title">Filtros</h3>
-        
+
         <!-- Price Range -->
         <div class="filter-group">
           <h4 class="filter-subtitle">Rango de Precio</h4>
           <div class="price-range">
-            <input type="range" 
-                   [min]="priceRange.min" 
-                   [max]="priceRange.max" 
-                   [(ngModel)]="selectedPriceMin"
+            <input type="range"
+                   [min]="priceRange.min"
+                   [max]="priceRange.max"
+
                    class="price-slider">
-            <input type="range" 
-                   [min]="priceRange.min" 
-                   [max]="priceRange.max" 
-                   [(ngModel)]="selectedPriceMax"
+            <input type="range"
+                   [min]="priceRange.min"
+                   [max]="priceRange.max"
+
                    class="price-slider">
             <div class="price-display">
               <span>${{selectedPriceMin}}</span>
@@ -58,29 +58,29 @@
             </div>
           </div>
         </div>
-        
+
         <!-- Categories -->
         <div class="filter-group">
           <h4 class="filter-subtitle">Categoría</h4>
           <div class="checkbox-group">
             <div class="checkbox-item" *ngFor="let category of categories">
-              <input type="checkbox" 
+              <input type="checkbox"
                      [id]="'cat-' + category.id"
-                     [(ngModel)]="category.selected"
+
                      (change)="onCategoryChange()">
               <label [for]="'cat-' + category.id">{{category.name}}</label>
             </div>
           </div>
         </div>
-        
+
         <!-- Brands -->
         <div class="filter-group">
           <h4 class="filter-subtitle">Marca</h4>
           <div class="checkbox-group">
             <div class="checkbox-item" *ngFor="let brand of brands">
-              <input type="checkbox" 
+              <input type="checkbox"
                      [id]="'brand-' + brand.id"
-                     [(ngModel)]="brand.selected"
+
                      (change)="onBrandChange()">
               <label [for]="'brand-' + brand.id">{{brand.name}}</label>
             </div>
@@ -88,29 +88,29 @@
         </div>
       </div>
     </div>
-    
+
     <!-- Products Grid -->
     <div class="products-container">
       <h2 class="products-title">Laptops disponibles</h2>
       <div class="products-grid">
         <div class="product-card" *ngFor="let product of filteredProducts">
           <div class="product-image-container">
-            <img [src]="product.image" 
-                 [alt]="product.name" 
+            <img [src]="product.image"
+                 [alt]="product.name"
                  class="product-image">
             <div class="product-actions">
-              <button class="action-button" 
+              <button class="action-button"
                       (click)="onViewProduct(product.id)"
                       title="Ver detalles">
                 <i class="fas fa-eye"></i>
               </button>
-              <button class="action-button" 
+              <button class="action-button"
                       (click)="onToggleFavorite(product.id)"
                       [class.active]="isFavorite(product.id)"
                       title="Favoritos">
                 <i [class]="isFavorite(product.id) ? 'fas fa-heart' : 'far fa-heart'"></i>
               </button>
-              <button class="action-button" 
+              <button class="action-button"
                       (click)="onAddToCart(product.id)"
                       title="Añadir al carrito">
                 <i class="fas fa-cart-plus"></i>
