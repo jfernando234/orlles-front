@@ -37,7 +37,7 @@
                                     <label class="control-label">Proveedor</label>
                                     <select class="form-select" formControlName="proveedor" required>
                                         <option value="" selected disabled>Seleccionar proveedor</option>
-                                        <option *ngFor="let p of proveedor" [value]="p.id">{{ p.nombre }}</option>
+                                        <option *ngFor="let p of proveedor" [ngValue]="p.id">{{ p.nombre }}</option>
                                     </select>
                                 </div>
                                 <div class="col-md-2">
@@ -109,7 +109,7 @@
                                     <td>{{ prod.nombre }}</td>
                                     <td>{{ prod.marca }}</td>
                                     <td>{{ prod.precioUnitario }}</td>
-                                    <td>{{ prod.proveedor?.nombre || '-' }}</td>
+                                    <td>{{ getProveedorNombre(prod.idproveedor) }}</td>
                                     <td>{{ prod.stockMinimo }}</td>
                                     <td>{{ prod.especificaciones }}</td>
                                   </tr>

@@ -37,6 +37,11 @@ export class ProveedoresComponent {
     });
   }
   guardarPorveedor(): void {
+        if (this.form.invalid) {
+        Swal.fire('Error', 'Completa todos los campos obligatorios', 'warning');
+        this.form.markAllAsTouched();
+        return;
+      }
       const proveedor : IProveedor = {
         nombre: this.form.value.nombrerazon,
         pais: this.form.value.pais,
@@ -50,16 +55,16 @@ export class ProveedoresComponent {
       console.log(proveedor);
       this.proveedorService.agregarProveedor(proveedor).subscribe(
         (response) => {
-          if (response.isSuccess) {
+          if (response && response.id != null) {
             Swal.fire({
               title: 'Registrando...',
               allowOutsideClick: false,
-            })
+            });
             Swal.showLoading();
             Swal.close();
-            Swal.fire('Correcto', 'producto guardado', 'success');
+            Swal.fire('Correcto', 'proveedor guardado', 'success');
           } else {
-            Swal.fire('Error', response.message, 'error');
+            Swal.fire('Error', 'No se pudo guardar el proveedor', 'error');
           }
         },
         (error) => {

@@ -10,7 +10,6 @@ import { NgIf, NgFor, NgClass } from '@angular/common';
 })
 export class CardProductoComponent {
   @Input() producto: any;
-
-  @Input() getImagenUrl!: (ID_producto: number) => string;
+  @Input() imagenUrl!: string;
 
 }

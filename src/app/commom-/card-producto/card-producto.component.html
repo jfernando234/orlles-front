@@ -1,9 +1,6 @@
 <div class="product-detail-card custom-card-border">
   <div class="product-image-side">
-    <img
-    [src]="producto.ID_producto ? getImagenUrl(producto.ID_producto) : 'assets/images/no-image.png'"
-    alt="Imagen del producto"
-    class="product-image-large" />
+    <img [src]="imagenUrl"alt="Imagen del producto" class="product-image-large" />
   </div>
   <div class="product-info-side">
     <div class="product-header">

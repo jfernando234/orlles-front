@@ -93,7 +93,7 @@
       <app-card-producto
       *ngFor="let prod of productos"
        [producto]="prod"
-      [getImagenUrl]="getImagenUrl.bind(this)">
+      [imagenUrl]="prod.ID_producto ? getImagenUrl(prod.ID_producto) : 'assets/images/no-image.png'">
     </app-card-producto>
     </div>
   </div>

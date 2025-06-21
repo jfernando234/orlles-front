@@ -15,7 +15,7 @@ export interface IProducto {
   nombre: string;
   marca: string;
   especificaciones: string;
-  precio: number;
+  precioUnitario: number;
   idproveedor: number;
-  Stock?: number;
+  stockMinimo?: number;
 }

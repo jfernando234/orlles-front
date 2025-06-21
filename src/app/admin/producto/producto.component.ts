@@ -52,21 +52,26 @@ export class ProductoComponent implements OnInit {
     this.editMode = true;
   }
   onFileSelected(event: any): void {
-  const file = event.target.files[0];
-  if (file) {
-    this.selectedFile = file;
-    const reader = new FileReader();
-    reader.onload = e => this.imagePreview = reader.result;
-    reader.readAsDataURL(file);
+    const file = event.target.files[0];
+    if (file) {
+      this.selectedFile = file;
+      const reader = new FileReader();
+      reader.onload = e => this.imagePreview = reader.result;
+      reader.readAsDataURL(file);
+    }
   }
-}
   guardarProducto(): void {
+    if (this.form.invalid) {
+      Swal.fire('Error', 'Completa todos los campos obligatorios', 'warning');
+      this.form.markAllAsTouched();
+      return;
+    }
     const producto : IProducto = {
       nombre: this.form.value.nombre,
       marca: this.form.value.marca,
-      precio: this.form.value.precio,
+      precioUnitario: this.form.value.precio,
       idproveedor: this.form.value.proveedor,
-      Stock: this.form.value.stock,
+      stockMinimo: this.form.value.stock,
       especificaciones: this.form.value.especificaciones
     };
     const formData = new FormData();
@@ -77,23 +82,37 @@ export class ProductoComponent implements OnInit {
     console.log(producto);
     this.productoService.agregarProducto(formData).subscribe(
       (response) => {
-        if (response.isSuccess) {
-          Swal.fire({
-            title: 'Registrando...',
-            allowOutsideClick: false,
-          })
-          Swal.showLoading();
-          Swal.close();
-          Swal.fire('Correcto', 'producto guardado', 'success');
-
-        } else {
-          Swal.fire('Error', response.message, 'error');
-        }
-      },
-      (error) => {
-        console.error(error);
+      if (response && response.isSuccess) {
+        Swal.fire({
+          title: 'Registrando...',
+          allowOutsideClick: false,
+        });
+        Swal.showLoading();
+        Swal.close();
+        Swal.fire('Correcto', 'producto guardado', 'success');
+        this.limpiarFormulario();
+         this.productoService.getProductos().subscribe(data => {
+        this.productos = data;
+      });
+      } else {
+        Swal.fire('Error', response?.message || 'No se pudo guardar el producto', 'error');
+      }
+    },
+    (error) => {
+      console.error(error);
+      Swal.fire('Error', 'Error de conexión o del servidor', 'error');
     });
   }
+
+  limpiarFormulario(): void {
+    this.form.reset();
+    this.selectedFile = null;
+    this.imagePreview = null;
+  }
+  getProveedorNombre(id: number): string {
+  const prov = this.proveedor.find(p => p.id === id);
+  return prov ? prov.nombre : '-';
+}
 }
 
 
