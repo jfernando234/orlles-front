@@ -150,9 +150,37 @@ export class HeaderComponent implements OnInit {
   showCartModal = false;
   showCheckoutModal = false;
   showAddressModal = false;
+  showPaymentModal = false;
+  showPaymentDetailsModal = false;
+  showPurchaseCompleteModal = false;
   selectedDeliveryType: string | null = null;
   deliveryAddress: string = '';
+  selectedPaymentMethod: string | null = null;
+  acceptedTerms = false;
+  acceptedCMRTerms = false;
+  orderNumber: string = '';
+
+  // Datos de los formularios de pago
+  cardDetails = {
+    number: '',
+    expiry: '',
+    cvv: '',
+    name: ''
+  };
   
+  yapeDetails = {
+    phone: ''
+  };
+  
+  giftCardDetails = {
+    code: '',
+    pin: ''
+  };
+  
+  couponDetails = {
+    code: ''
+  };
+
   // Propiedades para el formulario de dirección
   selectedDepartamento: string = '';
   selectedProvincia: string = '';
@@ -491,7 +519,6 @@ export class HeaderComponent implements OnInit {
   isAuthenticated = false;
   nombreUsuario = '';
   userRole = '';
-
   // Datos mock del carrito con 5 productos
   cartItems: CartItem[] = [
     {
@@ -503,7 +530,7 @@ export class HeaderComponent implements OnInit {
       cantidad: 1,
       imagen: 'https://via.placeholder.com/120x120/f0f0f0/333?text=iPad',
       color: 'Azul',
-      selected: true
+      selected: false // Solo el AirPods está seleccionado
     },
     {
       id: 2,
@@ -514,7 +541,7 @@ export class HeaderComponent implements OnInit {
       cantidad: 1,
       imagen: 'https://via.placeholder.com/120x120/f0f0f0/333?text=MacBook',
       color: 'Gris Espacial',
-      selected: true
+      selected: false // Solo el AirPods está seleccionado
     },
     {
       id: 3,
@@ -525,7 +552,7 @@ export class HeaderComponent implements OnInit {
       cantidad: 1,
       imagen: 'https://via.placeholder.com/120x120/f0f0f0/333?text=iPhone',
       color: 'Titanio Natural',
-      selected: true
+      selected: false // Solo el AirPods está seleccionado
     },
     {
       id: 4,
@@ -536,7 +563,7 @@ export class HeaderComponent implements OnInit {
       cantidad: 1,
       imagen: 'https://via.placeholder.com/120x120/f0f0f0/333?text=Watch',
       color: 'Rosa',
-      selected: true
+      selected: false // Solo el AirPods está seleccionado
     },
     {
       id: 5,
@@ -547,7 +574,7 @@ export class HeaderComponent implements OnInit {
       cantidad: 1,
       imagen: 'https://via.placeholder.com/120x120/f0f0f0/333?text=AirPods',
       color: 'Blanco',
-      selected: true
+      selected: true // Solo este está seleccionado para que coincida con la imagen
     }
   ];
   
@@ -557,21 +584,24 @@ export class HeaderComponent implements OnInit {
   
   // Propiedades para paginación
   currentPage = 1;
-  itemsPerPage = 3;
-
-  // Getters para calcular totales
+  itemsPerPage = 3;  // Getters para calcular totales
   get subtotal(): number {
     return this.cartItems
       .filter(item => item.selected)
-      .reduce((total, item) => total + (item.precio * item.cantidad), 0);
+      .reduce((total, item) => {
+        // Usar precio original si existe, sino usar precio actual
+        const precioBase = item.precioOriginal || item.precio;
+        return total + (precioBase * item.cantidad);
+      }, 0);
   }
   
   get igv(): number {
-    return this.subtotal * 0.18;
+    return this.total * 0.18;
   }
   
   get total(): number {
-    return this.subtotal + this.igv;
+    // El total es el subtotal menos los descuentos (sin IGV para este caso)
+    return this.subtotal - this.getDiscountAmount();
   }
 
   constructor(private router: Router, private fb: FormBuilder, private authService: AuthService) {
@@ -1076,17 +1106,14 @@ export class HeaderComponent implements OnInit {
         return total + discount;
       }, 0);
   }
-
   updateTotals() {
-    // Calcular total con garantía (precio ficticio para demostración)
-    const selectedSubtotal = this.cartItems
-      .filter(item => item.selected)
-      .reduce((total, item) => total + (item.precio * item.cantidad), 0);
+    // Calcular total con garantía usando el total correcto (con descuentos aplicados)
+    const totalFinal = this.total; // Ya incluye descuentos
     
     // Asumiendo un costo de garantía de S/435 por producto seleccionado
     const warrantyBase = 435;
     const selectedItemsCount = this.getSelectedItemsCount();
-    this.totalWithWarranty = selectedSubtotal + (warrantyBase * selectedItemsCount);
+    this.totalWithWarranty = totalFinal + (warrantyBase * selectedItemsCount);
   }
 
   // Método para inicializar el estado del carrito
@@ -1141,10 +1168,10 @@ export class HeaderComponent implements OnInit {
   selectDeliveryType(type: string): void {
     this.selectedDeliveryType = type;
   }
-
   proceedToPayment(): void {
     console.log('Proceder al pago con tipo de entrega:', this.selectedDeliveryType);
-    // Aquí iría la lógica para proceder al pago
+    this.showCheckoutModal = false;
+    this.showPaymentModal = true;
   }
 
   // Métodos para el modal de dirección
@@ -1244,5 +1271,159 @@ export class HeaderComponent implements OnInit {
 
   get selectedDepartamentoName(): string {
     return this.ubicacionesData[this.selectedDepartamento]?.name || '';
+  }
+
+  // Métodos para el modal de pago
+  closePaymentModal(): void {
+    this.showPaymentModal = false;
+    this.selectedPaymentMethod = null;
+    this.acceptedTerms = false;
+    this.acceptedCMRTerms = false;
+  }
+
+  selectPaymentMethod(method: string): void {
+    this.selectedPaymentMethod = method;
+    console.log('Método de pago seleccionado:', method);
+  }
+
+  getTotalWithPayment(): number {
+    // Si selecciona CMR o débito Falabella, aplicar 6% de descuento
+    if (this.selectedPaymentMethod === 'cmr' || this.selectedPaymentMethod === 'debit-falabella') {
+      return this.total * 0.94; // 6% de descuento
+    }
+    return this.total;
+  }
+
+  // Métodos para el modal de detalles de pago
+  openPaymentDetailsModal(): void {
+    this.showPaymentModal = false;
+    this.showPaymentDetailsModal = true;
+  }
+
+  closePaymentDetailsModal(): void {
+    this.showPaymentDetailsModal = false;
+    this.clearPaymentForms();
+  }
+
+  clearPaymentForms(): void {
+    this.cardDetails = { number: '', expiry: '', cvv: '', name: '' };
+    this.yapeDetails = { phone: '' };
+    this.giftCardDetails = { code: '', pin: '' };
+    this.couponDetails = { code: '' };
+  }
+
+  getPaymentDetailsTitle(): string {
+    switch (this.selectedPaymentMethod) {
+      case 'credit': return 'Datos de tarjeta de crédito';
+      case 'debit': return 'Datos de tarjeta de débito';
+      case 'yape': return 'Pagar con Yape';
+      case 'gift-card': return 'Canjear Gift Card';
+      case 'coupon': return 'Aplicar cupón de descuento';
+      default: return 'Detalles de pago';
+    }
+  }
+
+  isPaymentFormValid(): boolean {
+    switch (this.selectedPaymentMethod) {
+      case 'credit':
+      case 'debit':
+        return this.cardDetails.number.length >= 16 && 
+               this.cardDetails.expiry.length === 5 && 
+               this.cardDetails.cvv.length >= 3 && 
+               this.cardDetails.name.trim().length > 0;
+      case 'yape':
+        return this.yapeDetails.phone.length === 9;
+      case 'gift-card':
+        return this.giftCardDetails.code.length >= 16;
+      case 'coupon':
+        return this.couponDetails.code.trim().length > 0;
+      default:
+        return false;
+    }
+  }
+
+  // Métodos de formateo
+  formatCardNumber(event: any): void {
+    let value = event.target.value.replace(/\s/g, '').replace(/\D/g, '');
+    value = value.replace(/(\d{4})(?=\d)/g, '$1 ');
+    if (value.length > 19) value = value.substr(0, 19);
+    this.cardDetails.number = value;
+    event.target.value = value;
+  }
+
+  formatExpiryDate(event: any): void {
+    let value = event.target.value.replace(/\D/g, '');
+    if (value.length >= 2) {
+      value = value.substr(0, 2) + '/' + value.substr(2, 2);
+    }
+    this.cardDetails.expiry = value;
+    event.target.value = value;
+  }
+
+  formatGiftCardCode(event: any): void {
+    let value = event.target.value.replace(/\s/g, '').replace(/\W/g, '').toUpperCase();
+    value = value.replace(/(\w{4})(?=\w)/g, '$1-');
+    if (value.length > 19) value = value.substr(0, 19);
+    this.giftCardDetails.code = value;
+    event.target.value = value;
+  }
+
+  // Finalizar compra
+  finalizePurchase(): void {
+    this.orderNumber = this.generateOrderNumber();
+    this.showPaymentDetailsModal = false;
+    this.showPurchaseCompleteModal = true;
+    
+    // Simular procesamiento
+    console.log('Procesando compra con método:', this.selectedPaymentMethod);
+    console.log('Número de orden:', this.orderNumber);
+  }
+
+  generateOrderNumber(): string {
+    const timestamp = Date.now();
+    const random = Math.floor(Math.random() * 1000);
+    return `ORD${timestamp}${random}`.substr(0, 12);
+  }
+
+  getPaymentMethodName(): string {
+    switch (this.selectedPaymentMethod) {
+      case 'credit': return 'Tarjeta de crédito';
+      case 'debit': return 'Tarjeta de débito';
+      case 'yape': return 'Yape';
+      case 'gift-card': return 'Gift Card';
+      case 'coupon': return 'Cupón de descuento';
+      default: return 'Método de pago';
+    }
+  }
+
+  // Métodos para el modal de compra realizada
+  continueShopping(): void {
+    this.showPurchaseCompleteModal = false;
+    this.resetAllModals();
+    this.clearCart();
+  }
+
+  viewOrderDetails(): void {
+    console.log('Ver detalles del pedido:', this.orderNumber);
+    // Aquí se podría navegar a una página de detalles del pedido
+  }
+
+  resetAllModals(): void {
+    this.showCartModal = false;
+    this.showCheckoutModal = false;
+    this.showPaymentModal = false;
+    this.showPaymentDetailsModal = false;
+    this.showPurchaseCompleteModal = false;
+    this.showAddressModal = false;
+    this.selectedPaymentMethod = null;
+    this.acceptedTerms = false;
+    this.acceptedCMRTerms = false;
+    this.clearPaymentForms();
+  }
+
+  clearCart(): void {
+    this.cartItems = [];
+    this.cartCount = 0;
+    this.updateCartCount();
   }
 }
