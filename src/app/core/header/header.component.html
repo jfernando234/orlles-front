@@ -361,8 +361,7 @@
       <div class="checkout-modal-body">
         <!-- Contenido principal (lado izquierdo) -->
         <div class="checkout-main-content">
-          <!-- Sección de dirección -->
-          <div class="address-section">
+          <!-- Sección de dirección -->          <div class="address-section">
             <div class="address-row">
               <div class="address-icon">
                 <i class="fas fa-map-marker-alt"></i>
@@ -373,8 +372,31 @@
               </div>
               <button class="change-address-btn" (click)="openAddressModal()">
                 <i class="fas fa-edit"></i>
-                Cambiar
+                {{ tieneDirecciones ? 'Cambiar' : 'Agregar' }}
               </button>
+            </div>
+            
+            <!-- Mostrar direcciones disponibles si las hay -->
+            <div *ngIf="tieneDirecciones && direcciones.length > 1" class="direcciones-disponibles">
+              <p class="direcciones-titulo">Otras direcciones disponibles:</p>
+              <div class="direcciones-lista">
+                <div *ngFor="let direccion of direcciones" 
+                     class="direccion-item"
+                     [class.direccion-activa]="direccion.esPrincipal"
+                     (click)="seleccionarDireccion(direccion)">
+                  <i class="fas fa-map-marker-alt"></i>
+                  <span>{{ construirDireccionCompleta(direccion) }}</span>
+                  <span *ngIf="direccion.esPrincipal" class="badge-principal">Principal</span>
+                </div>
+              </div>
+            </div>
+            
+            <!-- Mensaje si no tiene direcciones -->
+            <div *ngIf="!tieneDirecciones" class="no-direcciones">
+              <p class="mensaje-no-direcciones">
+                <i class="fas fa-info-circle"></i>
+                {{ mensajeDireccion || 'Aún no cuentas con dirección registrada' }}
+              </p>
             </div>
           </div>
 

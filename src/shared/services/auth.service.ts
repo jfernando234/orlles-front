@@ -6,6 +6,7 @@ import { LoginRequest } from '../models/login-request.model';
 import { Usuario } from '../models/usuario.model';
 
 interface LoginResponse {
+  token?: string;  // Agregar el token JWT
   usuario?: string;
   roles?: string[];
   mensaje?: string;
@@ -35,6 +36,14 @@ export class AuthService {
         tap(response => {
           console.log('Login response:', response);
           
+          // Guardar el token JWT si existe
+          if (response.token) {
+            localStorage.setItem('token', response.token);
+            console.log('Token JWT guardado:', response.token);
+          } else {
+            console.warn('No se recibió token JWT en la respuesta');
+          }
+          
           // Guardar toda la información del usuario
           localStorage.setItem('usuario', JSON.stringify(response));
           localStorage.setItem('authenticated', 'true');
@@ -45,9 +54,9 @@ export class AuthService {
 
   registrar(usuario: Usuario): Observable<any> {
     return this.http.post(`${this.apiUrl}/api/auth/registrar`, usuario);
-  }
-  logout() {
+  }  logout() {
     localStorage.removeItem('usuario');
+    localStorage.removeItem('token');  // Eliminar también el token
     localStorage.removeItem('authenticated');
     this.isAuthenticatedSubject.next(false);
   }
@@ -66,9 +75,14 @@ export class AuthService {
     const user = this.getCurrentUser();
     return user && user.rol === role;
   }
-
   private hasToken(): boolean {
-    return localStorage.getItem('authenticated') === 'true';
+    const token = localStorage.getItem('token');
+    const authenticated = localStorage.getItem('authenticated') === 'true';
+    return authenticated && !!token;
+  }
+
+  getToken(): string | null {
+    return localStorage.getItem('token');
   }
 }
 
