@@ -5,11 +5,26 @@ import { AdminComponent } from './admin/admin.component';
 import { ProductoComponent } from './admin/producto/producto.component';
 import { ProveedoresComponent } from './admin/proveedores/proveedores.component';
 import { ClientesComponent } from './admin/clientes/clientes.component';
+import { LoginComponent } from './auth/login/login.component';
+import { AuthGuard } from '../shared/guards/auth.guard';
 
 const routes: Routes = [
-//  { path: '', component: HomeComponent, pathMatch: 'full' },
-//  { path: '**', redirectTo: '' } 
-  { path: 'admin',
+  { path: '', redirectTo: 'home', pathMatch: 'full' },
+  { path: 'home', component: HomeComponent },
+  { path: 'login', component: LoginComponent },
+  { 
+    path: 'admin',
+    component: AdminComponent,
+    canActivate: [AuthGuard],
+    children: [
+      { path: 'producto', component: ProductoComponent },
+      { path: 'proveedores', component: ProveedoresComponent },
+      { path: 'clientes', component: ClientesComponent },
+      { path: '', redirectTo: 'producto', pathMatch: 'full' }
+    ]
+  },
+  { 
+    path: 'admin-access',
     component: AdminComponent,
     children: [
       { path: 'producto', component: ProductoComponent },
@@ -18,9 +33,10 @@ const routes: Routes = [
       { path: '', redirectTo: 'producto', pathMatch: 'full' }
     ]
   },
-  { path: '', redirectTo: 'admin', pathMatch: 'full' },
-  { path: '**', redirectTo: 'admin' }
+  { path: '**', redirectTo: 'home' }
 ];
+
+export { routes };
 
 @NgModule({
   imports: [RouterModule.forRoot(routes)],

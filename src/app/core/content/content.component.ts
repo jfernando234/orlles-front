@@ -1,6 +1,5 @@
 import { Component, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 
 interface Product {
   id: number;
@@ -29,7 +28,7 @@ interface Brand {
 @Component({
   selector: 'app-content',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule],
   templateUrl: './content.component.html',
   styleUrls: ['./content.component.css']
 })
@@ -69,7 +68,7 @@ export class ContentComponent implements OnInit {
       price: '2,499',
       oldPrice: '2,699',
       discount: 7,
-      image: 'https://cdn.pixabay.com/photo/2016/03/27/07/12/apple-1282241_1280.jpg',
+      image: 'https://i.ibb.co/8WhDT8Y/Mac-Book-Pro-2025.jpg',
       category: 'ultrabook',
       brand: 'macbook'
     },
@@ -80,7 +79,7 @@ export class ContentComponent implements OnInit {
       price: '1,999',
       oldPrice: '2,299',
       discount: 13,
-      image: 'https://cdn.discordapp.com/attachments/1111808588231479369/1378309133069189281/s-l960-4_1.jpg?ex=683c21e9&is=683ad069&hm=c30362e96002539210165fb2221fe8063def47a81221a652467ca0579b2a10a9&',
+      image: 'https://i.ibb.co/4wXMCD2B/azus-rog.jpg',
       category: 'gaming',
       brand: 'asus'
     },
@@ -89,7 +88,7 @@ export class ContentComponent implements OnInit {
       name: 'Dell XPS 15',
       description: 'Intel i7, 16GB RAM, 512GB SSD',
       price: '1,499',
-      image: 'https://cdn.discordapp.com/attachments/1111808588231479369/1378306601475244103/664253_549592_03_front_zoom.png?ex=683c1f8d&is=683ace0d&hm=f27ecd5c731addc8b684ee5d3e1b6e160c2188a047c274c3c2f8992411b2bb82&',
+      image: 'https://i.ibb.co/SwWFLTnt/Dell-XPS-15.png',
       category: 'business',
       brand: 'dell'
     },
@@ -100,7 +99,7 @@ export class ContentComponent implements OnInit {
       price: '1,299',
       oldPrice: '1,399',
       discount: 7,
-      image: 'https://cdn.discordapp.com/attachments/1111808588231479369/1378307608271913010/s-l960.png?ex=683c207d&is=683acefd&hm=2a46f5767690485d2640925f52bea45d6c783359dcf781c3e6b235b65deaf8c7&',
+      image: 'https://p3-ofp.static.pub//fes/cms/2024/07/05/05dhzg0lrtq4i0d3wxqyjjakwmbmzr331426.png',
       category: 'business',
       brand: 'lenovo'
     },
@@ -111,7 +110,7 @@ export class ContentComponent implements OnInit {
       price: '1,399',
       oldPrice: '1,599',
       discount: 12,
-      image: 'https://cdn.discordapp.com/attachments/1111808588231479369/1378307835083100290/6576933_rd-1.png?ex=683c20b3&is=683acf33&hm=20c1aa8cb60a742f7231029a9f70e605862e380efb946ad98caf8e37c93e393c&',
+      image: 'https://i.ibb.co/x8RkLcxj/HP-Spectre-x360.png',
       category: '2in1',
       brand: 'hp'
     },
@@ -120,9 +119,96 @@ export class ContentComponent implements OnInit {
       name: 'Acer Predator Helios',
       description: 'AMD Ryzen 9, RTX 4070, 32GB RAM',
       price: '1,799',
-      image: 'https://cdn.discordapp.com/attachments/1111808588231479369/1378308703576653905/6541302ld.jpg?ex=683c2182&is=683ad002&hm=20c6ceb10849ef67cfcef7aee386aa87c15a1819b669dc928531c1eba6227028&',
+      image: 'https://i.ibb.co/DP9ZFdxR/Acer-Predator-Helios.jpg',
       category: 'gaming',
       brand: 'acer'
+    },
+    {
+      id: 7,
+      name: 'ROG Zephyrus G14 (2025)',
+      description: 'AMD Ryzen 9 2700S, NVIDIA GeForce RTX 5070, 8GB RAM',
+      price: '2,099',
+      oldPrice: '3,499',
+      discount: 6,
+      image: 'https://i.ibb.co/39wcVjLL/ROG-Zephyrus.png',
+      category: 'gaming',
+      brand: 'msi'
+    },
+    {
+      id: 8,
+      name: 'Lenovo IdeaPad 3',
+      description: 'AMD Ryzen 5, 8GB RAM, 256GB SSD',
+      price: '599',
+      image: '',
+      category: 'budget',
+      brand: 'lenovo'
+    },
+    {
+      id: 9,
+      name: 'HP Pavilion 15',
+      description: 'Intel i5, 8GB RAM, 512GB SSD',
+      price: '699',
+      image: '',
+      category: 'budget',
+      brand: 'hp'
+    },
+    {
+      id: 10,
+      name: 'Acer Aspire 5',
+      description: 'Intel i3, 4GB RAM, 128GB SSD',
+      price: '499',
+      image: '',
+      category: 'budget',
+      brand: 'acer'
+    },
+    {
+      id: 11,
+      name: 'Dell Inspiron 15',
+      description: 'Intel i5, 8GB RAM, 256GB SSD',
+      price: '749',
+      image: '',
+      category: 'budget',
+      brand: 'dell'
+    },
+    {
+      id: 12,
+      name: 'MacBook Air 2024',
+      description: 'M2 chip, 8GB RAM, 256GB SSD',
+      price: '1,099',
+      oldPrice: '1,199',
+      discount: 8,
+      image: '',
+      category: 'ultrabook',
+      brand: 'macbook'
+    },
+    {
+      id: 13,
+      name: 'Asus ZenBook 14',
+      description: 'Intel i7, 16GB RAM, 512GB SSD',
+      price: '1,199',
+      image: '',
+      category: 'ultrabook',
+      brand: 'asus'
+    },
+    {
+      id: 14,
+      name: 'Lenovo Yoga 9i',
+      description: 'Intel i7, 16GB RAM, 1TB SSD',
+      price: '1,499',
+      oldPrice: '1,699',
+      discount: 12,
+      image: '',
+      category: '2in1',
+      brand: 'lenovo'
+    },
+    {
+      id: 15,
+      name: 'HP Envy x360',
+      description: 'AMD Ryzen 7, 16GB RAM, 512GB SSD',
+      price: '1,299',
+      image: '',
+      category: '2in1',
+      brand: 'hp'
     }
   ];
 
@@ -178,9 +264,9 @@ export class ContentComponent implements OnInit {
     const selectedCategories = this.categories
       .filter(cat => cat.selected)
       .map(cat => cat.id);
-    
+
     if (selectedCategories.length > 0) {
-      filtered = filtered.filter(product => 
+      filtered = filtered.filter(product =>
         selectedCategories.includes(product.category)
       );
     }
@@ -189,9 +275,9 @@ export class ContentComponent implements OnInit {
     const selectedBrands = this.brands
       .filter(brand => brand.selected)
       .map(brand => brand.id);
-    
+
     if (selectedBrands.length > 0) {
-      filtered = filtered.filter(product => 
+      filtered = filtered.filter(product =>
         selectedBrands.includes(product.brand)
       );
     }

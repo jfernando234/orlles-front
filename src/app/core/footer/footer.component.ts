@@ -1,6 +1,6 @@
 import { Component, OnInit } from '@angular/core';
-import { FormsModule } from '@angular/forms';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-footer',
@@ -49,7 +49,7 @@ export class FooterComponent implements OnInit {
     if (this.subscriptionEmail && this.isValidEmail(this.subscriptionEmail)) {
       // Aquí iría la lógica para enviar el email de suscripción
       console.log('Suscripción enviada:', this.subscriptionEmail);
-      
+
       // Simular envío exitoso
       this.showSuccessMessage('¡Gracias por suscribirte! Te mantendremos informado.');
       this.subscriptionEmail = '';
