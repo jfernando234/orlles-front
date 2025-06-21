@@ -1426,4 +1426,47 @@ export class HeaderComponent implements OnInit {
     this.cartCount = 0;
     this.updateCartCount();
   }
+
+  // Métodos para navegación entre modales
+  goBackToCart(): void {
+    this.showCheckoutModal = false;
+    this.showCartModal = true;
+  }
+
+  goBackToCheckout(): void {
+    if (this.showPaymentModal) {
+      this.showPaymentModal = false;
+      this.showCheckoutModal = true;
+      this.selectedPaymentMethod = null;
+      this.acceptedTerms = false;
+    } else if (this.showAddressModal) {
+      this.showAddressModal = false;
+      this.showCheckoutModal = true;
+    }
+  }
+
+  goBackToPaymentMethods(): void {
+    this.showPaymentDetailsModal = false;
+    this.showPaymentModal = true;
+    this.clearPaymentForms();
+  }
+
+  // Métodos para validación de dirección
+  isAddressFormValid(): boolean {
+    return this.selectedDepartamento.length > 0 && 
+           this.selectedProvincia.length > 0 && 
+           this.selectedDistrito.length > 0 && 
+           this.avenida.trim().length > 0 && 
+           this.numero.trim().length > 0;
+  }
+
+  getSelectedProvinciaName(): string {
+    const provincia = this.provincias.find(p => p.value === this.selectedProvincia);
+    return provincia ? provincia.name : '';
+  }
+
+  getSelectedDistritoName(): string {
+    const distrito = this.distritos.find(d => d.value === this.selectedDistrito);
+    return distrito ? distrito.name : '';
+  }
 }

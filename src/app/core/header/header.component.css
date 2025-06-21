@@ -2247,7 +2247,305 @@
   background: #f8f9fa;
 }
 
-/* Responsive para modales de pago */
+/* ================================================
+   Modal de Dirección
+   ================================================ */
+
+.address-modal-content {
+  width: 95%;
+  max-width: 1000px;
+  max-height: 90vh;
+  overflow: hidden;
+  border-radius: 12px;
+  box-shadow: 0 25px 50px rgba(0, 0, 0, 0.25);
+  background: white;
+  position: relative;
+  margin: 2vh auto;
+  display: flex;
+  flex-direction: column;
+}
+
+.address-modal-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 20px 25px;
+  border-bottom: 1px solid #e5e5e5;
+  background: white;
+  position: sticky;
+  top: 0;
+  z-index: 10;
+}
+
+.address-modal-body {
+  display: flex;
+  flex: 1;
+  overflow: hidden;
+}
+
+.address-main-content {
+  flex: 1;
+  padding: 25px;
+  overflow-y: auto;
+  max-height: calc(90vh - 80px);
+}
+
+.address-summary {
+  width: 350px;
+  background: #f8f9fa;
+  border-left: 1px solid #e5e5e5;
+  padding: 25px;
+  overflow-y: auto;
+  max-height: calc(90vh - 80px);
+}
+
+/* Introducción del modal de dirección */
+.address-intro {
+  text-align: center;
+  margin-bottom: 30px;
+  padding: 20px;
+  background: #f0f8ff;
+  border-radius: 8px;
+}
+
+.address-intro-icon {
+  margin-bottom: 15px;
+}
+
+.address-intro-icon i {
+  font-size: 48px;
+  color: #007bff;
+}
+
+.address-intro h3 {
+  margin: 0 0 10px 0;
+  font-size: 20px;
+  color: #333;
+  font-weight: 600;
+}
+
+.address-intro .address-subtitle {
+  margin: 0;
+  color: #666;
+  font-size: 14px;
+  line-height: 1.4;
+}
+
+/* Formulario de dirección */
+.address-form {
+  max-width: 500px;
+}
+
+.address-form .form-group {
+  margin-bottom: 20px;
+}
+
+.address-form label {
+  display: block;
+  font-size: 14px;
+  font-weight: 500;
+  color: #333;
+  margin-bottom: 8px;
+}
+
+.required {
+  color: #e74c3c;
+  font-weight: bold;
+}
+
+.form-text {
+  font-size: 12px;
+  color: #666;
+  margin-top: 5px;
+  display: block;
+}
+
+/* Vista previa de dirección */
+.address-summary h3 {
+  font-size: 18px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 20px;
+}
+
+.address-preview {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 25px;
+  border: 1px solid #e5e5e5;
+}
+
+.address-preview-icon {
+  text-align: center;
+  margin-bottom: 15px;
+}
+
+.address-preview-icon i {
+  font-size: 32px;
+  color: #007bff;
+}
+
+.address-preview-content {
+  text-align: center;
+}
+
+.address-line {
+  margin-bottom: 8px;
+  font-size: 14px;
+  color: #333;
+  line-height: 1.4;
+}
+
+.address-line:last-child {
+  margin-bottom: 0;
+}
+
+.address-placeholder {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  color: #999;
+  font-size: 14px;
+  padding: 20px;
+}
+
+.address-placeholder i {
+  font-size: 24px;
+  color: #ccc;
+}
+
+/* Opciones de entrega preview */
+.delivery-options-preview {
+  background: white;
+  border-radius: 8px;
+  padding: 20px;
+  margin-bottom: 25px;
+  border: 1px solid #e5e5e5;
+}
+
+.delivery-options-preview h4 {
+  font-size: 16px;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 15px;
+}
+
+.option-item {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 0;
+  font-size: 14px;
+  color: #666;
+}
+
+.option-item i {
+  color: #007bff;
+  width: 16px;
+  text-align: center;
+}
+
+/* Acciones del modal */
+.address-actions, .modal-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e5e5;
+}
+
+.btn {
+  padding: 12px 20px;
+  border-radius: 6px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  border: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.btn-back {
+  background: white;
+  color: #666;
+  border: 1px solid #ddd;
+}
+
+.btn-back:hover {
+  background: #f8f9fa;
+  color: #333;
+}
+
+.btn-primary {
+  background: #007bff;
+  color: white;
+}
+
+.btn-primary:hover:not(:disabled) {
+  background: #0056b3;
+}
+
+.btn-primary:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.btn-link {
+  background: none;
+  color: #007bff;
+  border: none;
+  text-decoration: underline;
+}
+
+.btn-link:hover {
+  color: #0056b3;
+}
+
+.btn i {
+  font-size: 12px;
+}
+
+/* Responsive para modal de dirección */
+@media (max-width: 768px) {
+  .address-modal-content {
+    width: 100%;
+    height: 100vh;
+    max-height: 100vh;
+    border-radius: 0;
+    margin: 0;
+  }
+  
+  .address-modal-body {
+    flex-direction: column;
+  }
+  
+  .address-summary {
+    width: 100%;
+    border-left: none;
+    border-top: 1px solid #e5e5e5;
+    max-height: none;
+  }
+  
+  .address-main-content {
+    max-height: 50vh;
+  }
+  
+  .address-actions, .modal-actions {
+    flex-direction: column;
+    gap: 10px;
+  }
+  
+  .btn {
+    width: 100%;
+    justify-content: center;
+  }
+}
 @media (max-width: 768px) {
   .payment-details-modal-content {
     width: 100%;
@@ -2282,4 +2580,81 @@
   .action-buttons {
     flex-direction: column;
   }
+}
+
+/* Botones de acción para modales */
+.modal-actions {
+  display: flex;
+  gap: 15px;
+  justify-content: space-between;
+  align-items: center;
+  margin-top: 20px;
+  padding-top: 20px;
+  border-top: 1px solid #e5e5e5;
+}
+
+.checkout-btn {
+  flex: 1;
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.checkout-btn:hover:not(:disabled) {
+  background: #0056b3;
+}
+
+.checkout-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.continue-btn {
+  flex: 1;
+  background: #007bff;
+  color: white;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.continue-btn:hover:not(:disabled) {
+  background: #0056b3;
+}
+
+.continue-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
+}
+
+.finalize-purchase-btn {
+  flex: 1;
+  background: #28a745;
+  color: white;
+  border: none;
+  padding: 15px 20px;
+  border-radius: 8px;
+  font-size: 16px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background 0.3s ease;
+}
+
+.finalize-purchase-btn:hover:not(:disabled) {
+  background: #218838;
+}
+
+.finalize-purchase-btn:disabled {
+  background: #ccc;
+  cursor: not-allowed;
 }

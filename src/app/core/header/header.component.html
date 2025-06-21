@@ -469,12 +469,17 @@
               <span><strong>S/ {{total | number:'1.0-0'}}</strong></span>
             </div>
           </div>
-          
-          <button class="checkout-btn" 
-                  (click)="proceedToPayment()" 
-                  [disabled]="!selectedDeliveryType">
-            IR A PAGAR
-          </button>
+            <div class="modal-actions">
+            <button type="button" class="btn btn-back" (click)="goBackToCart()">
+              <i class="fas fa-arrow-left"></i>
+              Regresar al carrito
+            </button>
+            <button class="checkout-btn" 
+                    (click)="proceedToPayment()" 
+                    [disabled]="!selectedDeliveryType">
+              IR A PAGAR
+            </button>
+          </div>
         </div>
       </div>
     </div>
@@ -608,12 +613,17 @@
               </div>
               <span class="total-price"><strong>S/ {{getTotalWithPayment() | number:'1.0-0'}}</strong></span>
             </div>          </div>
-          
-          <button class="continue-btn" 
-                  [disabled]="!selectedPaymentMethod || !acceptedTerms"
-                  (click)="openPaymentDetailsModal()">
-            Continuar
-          </button>
+            <div class="modal-actions">
+            <button type="button" class="btn btn-back" (click)="goBackToCheckout()">
+              <i class="fas fa-arrow-left"></i>
+              Regresar
+            </button>
+            <button class="continue-btn" 
+                    [disabled]="!selectedPaymentMethod || !acceptedTerms"
+                    (click)="openPaymentDetailsModal()">
+              Continuar
+            </button>
+          </div>
           
           <div class="need-invoice">
             <span>¿Necesitas factura?</span>
@@ -765,12 +775,17 @@
             <span><strong>Total a pagar:</strong></span>
             <span><strong>S/ {{getTotalWithPayment() | number:'1.0-0'}}</strong></span>
           </div>
-          
-          <button class="finalize-purchase-btn" 
-                  [disabled]="!isPaymentFormValid()"
-                  (click)="finalizePurchase()">
-            Finalizar compra
-          </button>
+            <div class="modal-actions">
+            <button type="button" class="btn btn-back" (click)="goBackToPaymentMethods()">
+              <i class="fas fa-arrow-left"></i>
+              Regresar
+            </button>
+            <button class="finalize-purchase-btn" 
+                    [disabled]="!isPaymentFormValid()"
+                    (click)="finalizePurchase()">
+              Finalizar compra
+            </button>
+          </div>
           
           <div class="security-info">
             <i class="fas fa-shield-alt"></i>
@@ -826,66 +841,126 @@
       </div>
     </div>
   </div>
-
   <!-- Modal para ingresar dirección -->
-  <div *ngIf="showAddressModal" class="modal-backdrop address-modal-backdrop">
+  <div *ngIf="showAddressModal" class="modal-backdrop">
     <div class="address-modal-content">
+      <!-- Header del modal -->
       <div class="address-modal-header">
-        <div class="address-modal-title">
-          <i class="fas fa-map-marker-alt"></i>
-          <span>Ingresa tu dirección</span>
+        <div class="header-title">
+          <h2>Ingresa tu dirección</h2>
         </div>
         <button class="close-btn" (click)="closeAddressModal()">&times;</button>
       </div>
       
       <div class="address-modal-body">
-        <p class="address-subtitle">para ver las opciones de <strong>entrega</strong> y <strong>retiro</strong></p>
-        
-        <form class="address-form">          <div class="form-group">
-            <label for="departamento">Departamento</label>
-            <select id="departamento" class="form-control" [(ngModel)]="selectedDepartamento" (change)="onDepartamentoChange()" name="departamento">
-              <option value="" *ngIf="!selectedDepartamento">Selecciona un Departamento</option>
-              <option *ngFor="let departamento of getDepartamentos()" [value]="departamento.value">{{departamento.name}}</option>
-            </select>
-          </div>            <div class="form-group">
-            <label for="provincia">Provincia</label>
-            <select id="provincia" class="form-control" [(ngModel)]="selectedProvincia" (change)="onProvinciaChange()" [disabled]="!selectedDepartamento || provincias.length === 0" name="provincia">
-              <option value="">Selecciona una Provincia</option>
-              <option *ngFor="let provincia of provincias" [value]="provincia.value">{{provincia.name}}</option>
-            </select>
+        <!-- Contenido principal -->
+        <div class="address-main-content">
+          <div class="address-intro">
+            <div class="address-intro-icon">
+              <i class="fas fa-map-marker-alt"></i>
+            </div>
+            <h3>Configura tu dirección de entrega</h3>
+            <p class="address-subtitle">Para ver las opciones de <strong>entrega</strong> y <strong>retiro</strong> disponibles en tu zona</p>
           </div>
+
+          <form class="address-form">
             <div class="form-group">
-            <label for="distrito">Distrito</label>
-            <select id="distrito" class="form-control" [(ngModel)]="selectedDistrito" [disabled]="!selectedProvincia || distritos.length === 0" name="distrito">
-              <option value="">Selecciona un Distrito</option>
-              <option *ngFor="let distrito of distritos" [value]="distrito.value">{{distrito.name}}</option>
-            </select>
-          </div>
+              <label for="departamento">Departamento <span class="required">*</span></label>
+              <select id="departamento" class="form-control" [(ngModel)]="selectedDepartamento" (change)="onDepartamentoChange()" name="departamento">
+                <option value="">Selecciona un departamento</option>
+                <option *ngFor="let departamento of getDepartamentos()" [value]="departamento.value">{{departamento.name}}</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="provincia">Provincia <span class="required">*</span></label>
+              <select id="provincia" class="form-control" [(ngModel)]="selectedProvincia" (change)="onProvinciaChange()" [disabled]="!selectedDepartamento || provincias.length === 0" name="provincia">
+                <option value="">Selecciona una provincia</option>
+                <option *ngFor="let provincia of provincias" [value]="provincia.value">{{provincia.name}}</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="distrito">Distrito <span class="required">*</span></label>
+              <select id="distrito" class="form-control" [(ngModel)]="selectedDistrito" [disabled]="!selectedProvincia || distritos.length === 0" name="distrito">
+                <option value="">Selecciona un distrito</option>
+                <option *ngFor="let distrito of distritos" [value]="distrito.value">{{distrito.name}}</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="avenida">Avenida / Calle / Jirón <span class="required">*</span></label>
+              <input type="text" id="avenida" class="form-control" placeholder="Ej: Av. Javier Prado Este" [(ngModel)]="avenida" name="avenida">
+            </div>
+
+            <div class="form-group">
+              <label for="numero">Número <span class="required">*</span></label>
+              <input type="text" id="numero" class="form-control" placeholder="Ej: 123" [(ngModel)]="numero" name="numero">
+            </div>
+
+            <div class="form-group">
+              <label for="referencias">Referencia adicional</label>
+              <input type="text" id="referencias" class="form-control" placeholder="Ej: Dpto. 101, Piso 2, Cerca al parque" [(ngModel)]="referencias" name="referencias">
+              <small class="form-text">Información adicional para facilitar la entrega (opcional)</small>
+            </div>
+          </form>
+        </div>
+
+        <!-- Resumen de dirección (lado derecho) -->
+        <div class="address-summary">
+          <h3>Resumen de tu dirección</h3>
           
-          <div class="form-group">
-            <label for="avenida">Avenida/ Calle/ Jirón</label>
-            <input type="text" id="avenida" class="form-control" placeholder="Ingresa el nombre de la calle" [(ngModel)]="avenida" name="avenida">
+          <div class="address-preview">
+            <div class="address-preview-icon">
+              <i class="fas fa-home"></i>
+            </div>
+            <div class="address-preview-content">
+              <div class="address-line" *ngIf="selectedDepartamento || selectedProvincia || selectedDistrito">
+                <strong>{{selectedDepartamentoName}}</strong>
+                <span *ngIf="selectedProvincia">, {{getSelectedProvinciaName()}}</span>
+                <span *ngIf="selectedDistrito">, {{getSelectedDistritoName()}}</span>
+              </div>
+              <div class="address-line" *ngIf="avenida || numero">
+                {{avenida}} {{numero}}
+              </div>
+              <div class="address-line" *ngIf="referencias">
+                {{referencias}}
+              </div>
+              <div class="address-placeholder" *ngIf="!selectedDepartamento && !selectedProvincia && !selectedDistrito && !avenida && !numero">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>Completa los campos para ver tu dirección</span>
+              </div>
+            </div>
           </div>
-          
-          <div class="form-group">
-            <label for="numero">Número</label>
-            <input type="text" id="numero" class="form-control" placeholder="Ingresa el número de la calle" [(ngModel)]="numero" name="numero">
+
+          <div class="delivery-options-preview">
+            <h4>Opciones disponibles:</h4>
+            <div class="option-item">
+              <i class="fas fa-truck"></i>
+              <span>Envío a domicilio</span>
+            </div>
+            <div class="option-item">
+              <i class="fas fa-store"></i>
+              <span>Recojo en tienda</span>
+            </div>
+            <div class="option-item">
+              <i class="fas fa-clock"></i>
+              <span>Entrega programada</span>
+            </div>
           </div>
-          
-          <div class="form-group">
-            <label for="referencias">Dpto./ Interior/ Piso/ Lote/ Bloque (opcional)</label>
-            <input type="text" id="referencias" class="form-control" placeholder="" [(ngModel)]="referencias" name="referencias">
+
+          <div class="address-actions">
+            <button type="button" class="btn btn-back" (click)="goBackToCheckout()">
+              <i class="fas fa-arrow-left"></i>
+              Regresar
+            </button>
+            <button type="button" class="btn btn-primary" 
+                    [disabled]="!isAddressFormValid()" 
+                    (click)="confirmAddress()">
+              Confirmar dirección
+            </button>
           </div>
-        </form>
-      </div>
-      
-      <div class="address-modal-footer">
-        <button type="button" class="btn btn-link" (click)="closeAddressModal()">
-          Descartar cambios
-        </button>
-        <button type="button" class="btn btn-primary" (click)="confirmAddress()">
-          Confirmar dirección
-        </button>
+        </div>
       </div>
     </div>
   </div>
