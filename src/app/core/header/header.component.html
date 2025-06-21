@@ -27,14 +27,15 @@
     <div class="user-actions">
       <!-- Mostrar cuando NO está autenticado -->
       <ng-container *ngIf="!isAuthenticated">
-        <div class="welcome-text">Bienvenido</div>
-        <button (click)="onLoginClick()" class="auth-button">
+        <div class="welcome-text">Bienvenido</div>        <button (click)="onLoginClick()" class="auth-button">
           Identifícate
+        </button>
+        <button class="btn-ticket" [routerLink]="['/admin-access']">
+          admin
         </button>
         <button (click)="onRegisterClick()" class="auth-button">
           Regístrate
         </button>
-       
 
       </ng-container>
       

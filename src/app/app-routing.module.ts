@@ -23,6 +23,16 @@ const routes: Routes = [
       { path: '', redirectTo: 'producto', pathMatch: 'full' }
     ]
   },
+  { 
+    path: 'admin-access',
+    component: AdminComponent,
+    children: [
+      { path: 'producto', component: ProductoComponent },
+      { path: 'proveedores', component: ProveedoresComponent },
+      { path: 'clientes', component: ClientesComponent },
+      { path: '', redirectTo: 'producto', pathMatch: 'full' }
+    ]
+  },
   { path: '**', redirectTo: 'home' }
 ];
 
