@@ -1,6 +1,3 @@
-<<<<<<<<< Temporary merge branch 1
-import { Component } from '@angular/core';
-
 @Component({
   selector: 'app-admin',
   imports: [],
@@ -10,7 +7,6 @@ import { Component } from '@angular/core';
 export class AdminComponent {
 
 }
-=========
 import { Component, NgModule } from '@angular/core';
 import { ProductoComponent } from "./producto/producto.component";
 import { ProveedoresComponent } from './proveedores/proveedores.component';
@@ -65,4 +61,3 @@ NgModule({
   exports: [AdminComponent],
   providers: []
 })
->>>>>>>>> Temporary merge branch 2
