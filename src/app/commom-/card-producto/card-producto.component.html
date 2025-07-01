@@ -1,0 +1,33 @@
+<div class="product-detail-card custom-card-border">
+  <div class="product-image-side">
+    <img [src]="imagenUrl"alt="Imagen del producto" class="product-image-large" />
+  </div>
+  <div class="product-info-side">
+    <div class="product-header">
+      <h5 class="product-title">{{ producto.nombre }}</h5>
+      <div class="product-rating">
+        <ng-container *ngFor="let star of [1,2,3,4,5]; let i = index">
+          <i class="fa" [ngClass]="i < (producto.rating || 4) ? 'fa-star checked' : 'fa-star-o'"></i>
+        </ng-container>
+        <span class="rating-value">{{ producto.rating || '4.5' }} <span class="rating-count">(125 reseñas)</span></span>
+      </div>
+    </div>
+    <div class="product-prices">
+      <span class="product-price">S/. {{ producto.precioUnitario }}</span>
+      <span class="product-old-price" *ngIf="producto.precioAnterior">S/. {{ producto.precioAnterior }}</span>
+    </div>
+    <div class="product-specs">
+      <div><b>Procesador:</b> {{ producto.procesador || producto.especificaciones?.procesador || '-' }}</div>
+      <div><b>RAM:</b> {{ producto.ram || producto.especificaciones?.ram || '-' }}</div>
+      <div><b>Almacenamiento:</b> {{ producto.almacenamiento || producto.especificaciones?.almacenamiento || '-' }}</div>
+      <div><b>Pantalla:</b> {{ producto.pantalla || producto.especificaciones?.pantalla || '-' }}</div>
+      <div><b>GPU:</b> {{ producto.gpu || producto.especificaciones?.gpu || '-' }}</div>
+      <div><b>Sistema operativo:</b> {{ producto.sistema || producto.especificaciones?.sistema || '-' }}</div>
+      <div><b>Batería:</b> {{ producto.bateria || producto.especificaciones?.bateria || '-' }}</div>
+      <div><b>Puertos:</b> {{ producto.puertos || producto.especificaciones?.puertos || '-' }}</div>
+      <div><b>Proveedor:</b> {{ producto.proveedor?.nombre || '-' }}</div>
+      <div><b>Stock mínimo:</b> {{ producto.stockMinimo }}</div>
+    </div>
+    <button class="add-to-cart-btn">Añadir al carrito</button>
+  </div>
+</div>

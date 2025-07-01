@@ -22,73 +22,73 @@ export class CustomValidators {
   static onlyLetters(control: AbstractControl): ValidationErrors | null {
     const value = control.value;
     if (!value) return null;
-    
+
     const onlyLettersRegex = /^[a-zA-ZáéíóúÁÉÍÓÚñÑ\s]+$/;
     if (!onlyLettersRegex.test(value)) {
       return { onlyLetters: true };
     }
     return null;
   }
-  
+
   static peruDNI(control: AbstractControl): ValidationErrors | null {
     const value = control.value;
     if (!value) return null;
-    
+
     // Debe tener exactamente 8 dígitos
     if (!/^\d{8}$/.test(value)) {
       return { invalidDNI: true };
     }
-    
+
     // No debe empezar con 0
     if (value.startsWith('0')) {
       return { invalidDNI: true };
     }
-    
+
     // No debe ser un patrón muy simple (números consecutivos o repetidos)
     const consecutivePattern = /^(01234567|12345678|23456789|87654321|76543210|65432109|54321098|43210987|32109876|21098765|10987654)$/;
     if (consecutivePattern.test(value)) {
       return { invalidDNI: true };
     }
-    
+
     // No debe tener todos los dígitos iguales
     const allSameDigits = /^(\d)\1{7}$/;
     if (allSameDigits.test(value)) {
       return { invalidDNI: true };
     }
-    
+
     // Validación adicional: no debe ser menor a 10000000 (muy bajo)
     const numValue = parseInt(value);
     if (numValue < 10000000) {
       return { invalidDNI: true };
     }
-    
+
     return null;
   }
-  
+
   static carnetExtranjeria(control: AbstractControl): ValidationErrors | null {
     const value = control.value;
     if (!value) return null;
-    
+
     // Carnet de Extranjería: 9 dígitos que empiezan con 0
     if (!/^0\d{8}$/.test(value)) {
       return { invalidCarnet: true };
     }
-    
+
     return null;
   }
-  
+
   static passport(control: AbstractControl): ValidationErrors | null {
     const value = control.value;
     if (!value) return null;
-    
+
     // Pasaporte: 9 caracteres alfanuméricos
     if (!/^[A-Z0-9]{9}$/.test(value.toUpperCase())) {
       return { invalidPassport: true };
     }
-    
+
     return null;
   }
-  
+
   // Validador dinámico que usa el tipo de documento
   static dynamicDocumentValidator(tipoDocumento: string) {
     return (control: AbstractControl): ValidationErrors | null => {
@@ -104,34 +104,34 @@ export class CustomValidators {
       }
     };
   }
-  
+
   static peruPhone(control: AbstractControl): ValidationErrors | null {
     const value = control.value;
     if (!value) return null;
-    
+
     const phoneRegex = /^9\d{8}$/;
     if (!phoneRegex.test(value)) {
       return { invalidPhone: true };
     }
     return null;
   }
-  
+
   static strongPassword(control: AbstractControl): ValidationErrors | null {
     const value = control.value;
     if (!value) return null;
-    
+
     const hasUpperCase = /[A-Z]/.test(value);
     const hasNumber = /[0-9]/.test(value);
     const hasSpecialChar = /[!@#$%^&*()_+\-=\[\]{};':"\\|,.<>\/?]/.test(value);
     const hasMinLength = value.length >= 8;
-    
+
     const errors: any = {};
-    
+
     if (!hasUpperCase) errors.missingUpperCase = true;
     if (!hasNumber) errors.missingNumber = true;
     if (!hasSpecialChar) errors.missingSpecialChar = true;
     if (!hasMinLength) errors.minLength = true;
-    
+
     return Object.keys(errors).length > 0 ? errors : null;
   }
 }
@@ -168,16 +168,16 @@ export class HeaderComponent implements OnInit {
     cvv: '',
     name: ''
   };
-  
+
   yapeDetails = {
     phone: ''
   };
-  
+
   giftCardDetails = {
     code: '',
     pin: ''
   };
-  
+
   couponDetails = {
     code: ''
   };
@@ -512,7 +512,7 @@ export class HeaderComponent implements OnInit {
     }
   }
 };
-  
+
   loginForm: FormGroup;
   registerForm: FormGroup;
   error: string | null = null;
@@ -585,11 +585,11 @@ export class HeaderComponent implements OnInit {
       selected: true // Solo este está seleccionado para que coincida con la imagen
     }
   ];
-  
+
   // Nuevas propiedades para el carrito mejorado
   allSelected = false;
   totalWithWarranty = 0;
-  
+
   // Propiedades para paginación
   currentPage = 1;
   itemsPerPage = 3;  // Getters para calcular totales
@@ -602,10 +602,12 @@ export class HeaderComponent implements OnInit {
         return total + (precioBase * item.cantidad);
       }, 0);
   }
-  
+
   get igv(): number {
     return this.total * 0.18;
+
   }  
+
   get total(): number {
     // El total es el subtotal menos los descuentos (sin IGV para este caso)
     return this.subtotal - this.getDiscountAmount();
@@ -622,7 +624,7 @@ export class HeaderComponent implements OnInit {
       nombreUsuario: ['', Validators.required],
       contrasena: ['', Validators.required]
     });
-    
+
     this.registerForm = this.fb.group({
       correoElectronico: ['', [Validators.required, Validators.email]],
       nombre: ['', [Validators.required, CustomValidators.onlyLetters]],
@@ -632,25 +634,25 @@ export class HeaderComponent implements OnInit {
       celular: ['', [Validators.required, CustomValidators.peruPhone]],
       contrasena: ['', [Validators.required, CustomValidators.strongPassword]]
     });
-    
+
     // Escuchar cambios en el tipo de documento
     this.registerForm.get('tipoDocumento')?.valueChanges.subscribe(tipo => {
       this.updateDocumentValidation(tipo);
     });
   }
-  
+
   updateDocumentValidation(tipoDocumento: string) {
     const documentControl = this.registerForm.get('numeroDocumento');
-    
+
     // Limpiar el campo
     documentControl?.setValue('');
-    
+
     // Actualizar validadores
     documentControl?.setValidators([
       Validators.required,
       CustomValidators.dynamicDocumentValidator(tipoDocumento)
     ]);
-    
+
     // Actualizar validación
     documentControl?.updateValueAndValidity();
   }  ngOnInit() {
@@ -663,10 +665,10 @@ export class HeaderComponent implements OnInit {
   checkAuthentication() {
     const usuario = localStorage.getItem('usuario');
     console.log('Usuario en localStorage:', usuario);
-    
+
     if (usuario) {
       this.isAuthenticated = true;
-      
+
       try {
         const usuarioObj = JSON.parse(usuario);
         this.nombreUsuario = usuarioObj.nombreCompleto || usuarioObj.nombreUsuario || usuarioObj.usuario || 'Usuario';
@@ -700,11 +702,14 @@ export class HeaderComponent implements OnInit {
   }
 
   onLoginClick() {
+    console.log('aqui')
     this.showLoginModal = true;
   }
 
   onRegisterClick() {
+
     this.showRegisterModal = true;
+    console.log('aqui')
   }
 
   onCartClick() {
@@ -759,7 +764,7 @@ export class HeaderComponent implements OnInit {
         celular: this.registerForm.value.celular,
         contrasena: this.registerForm.value.contrasena
       };
-      
+
       this.authService.registrar(userData).subscribe({
         next: (response) => {
           this.closeRegisterModal();
@@ -819,7 +824,7 @@ export class HeaderComponent implements OnInit {
   forgotPassword() {
     console.log('Recuperar contraseña');
   }
-  
+
   switchToLogin() {
     this.closeRegisterModal();
     this.showLoginModal = true;
@@ -834,10 +839,10 @@ export class HeaderComponent implements OnInit {
   onNameInput(event: Event, field: string) {
     const input = event.target as HTMLInputElement;
     let value = input.value;
-    
+
     // Solo permitir letras, espacios y acentos
     value = value.replace(/[^a-zA-ZáéíóúÁÉÍÓÚñÑ\s]/g, '');
-    
+
     if (input.value !== value) {
       input.value = value;
       this.registerForm.get(field)?.setValue(value);
@@ -848,7 +853,7 @@ export class HeaderComponent implements OnInit {
     const input = event.target as HTMLInputElement;
     let value = input.value;
     const tipoDocumento = this.registerForm.get('tipoDocumento')?.value;
-    
+
     switch (tipoDocumento) {
       case 'DNI':
         // Solo permitir números, máximo 8 dígitos
@@ -858,7 +863,7 @@ export class HeaderComponent implements OnInit {
           value = value.substring(1);
         }
         break;
-        
+
       case 'CE':
         // Solo permitir números, máximo 9 dígitos, debe empezar con 0
         value = value.replace(/[^0-9]/g, '').slice(0, 9);
@@ -867,17 +872,17 @@ export class HeaderComponent implements OnInit {
           value = '0' + value.substring(0, 8);
         }
         break;
-        
+
       case 'PASSPORT':
         // Permitir letras y números, máximo 9 caracteres, convertir a mayúsculas
         value = value.replace(/[^A-Za-z0-9]/g, '').slice(0, 9).toUpperCase();
         break;
     }
-    
+
     if (input.value !== value) {
       input.value = value;
       this.registerForm.get('numeroDocumento')?.setValue(value);
-      
+
       // Forzar validación
       this.registerForm.get('numeroDocumento')?.markAsTouched();
       this.registerForm.get('numeroDocumento')?.updateValueAndValidity();
@@ -887,10 +892,10 @@ export class HeaderComponent implements OnInit {
   onPhoneInput(event: Event) {
     const input = event.target as HTMLInputElement;
     let value = input.value;
-    
+
     // Solo permitir números, máximo 9 dígitos
     value = value.replace(/[^0-9]/g, '').slice(0, 9);
-    
+
     // Si no empieza con 9, forzar que empiece con 9
     if (value.length > 0 && !value.startsWith('9')) {
       // Si escribió un número diferente a 9 como primer dígito, reemplazarlo por 9
@@ -901,11 +906,11 @@ export class HeaderComponent implements OnInit {
         value = '9' + value.substring(1);
       }
     }
-    
+
     if (input.value !== value) {
       input.value = value;
       this.registerForm.get('celular')?.setValue(value);
-      
+
       // Forzar validación
       this.registerForm.get('celular')?.markAsTouched();
       this.registerForm.get('celular')?.updateValueAndValidity();
@@ -916,12 +921,12 @@ export class HeaderComponent implements OnInit {
     const char = event.key;
     const input = event.target as HTMLInputElement;
     const currentValue = input.value;
-    
+
     // Permitir teclas de control
     if (this.isControlKey(event)) {
       return true;
     }
-    
+
     switch (field) {
       case 'nombre':
       case 'apellidos':
@@ -932,7 +937,7 @@ export class HeaderComponent implements OnInit {
         break;
       case 'dni':
         const tipoDocumento = this.registerForm.get('tipoDocumento')?.value;
-        
+
         switch (tipoDocumento) {
           case 'DNI':
             if (!/[0-9]/.test(char)) {
@@ -945,7 +950,7 @@ export class HeaderComponent implements OnInit {
               return false;
             }
             break;
-            
+
           case 'CE':
             if (!/[0-9]/.test(char)) {
               event.preventDefault();
@@ -957,7 +962,7 @@ export class HeaderComponent implements OnInit {
               return false;
             }
             break;
-            
+
           case 'PASSPORT':
             if (!/[a-zA-Z0-9]/.test(char)) {
               event.preventDefault();
@@ -966,7 +971,7 @@ export class HeaderComponent implements OnInit {
             break;
         }
         break;
-        
+
       case 'celular':
         if (!/[0-9]/.test(char)) {
           event.preventDefault();
@@ -981,18 +986,18 @@ export class HeaderComponent implements OnInit {
     }
     return true;
   }
-  
+
   private isControlKey(event: KeyboardEvent): boolean {
-    return event.key === 'Backspace' || 
-           event.key === 'Delete' || 
-           event.key === 'Tab' || 
-           event.key === 'Escape' || 
-           event.key === 'Enter' || 
-           event.key === 'Home' || 
-           event.key === 'End' || 
-           event.key === 'ArrowLeft' || 
-           event.key === 'ArrowRight' || 
-           event.key === 'ArrowUp' || 
+    return event.key === 'Backspace' ||
+           event.key === 'Delete' ||
+           event.key === 'Tab' ||
+           event.key === 'Escape' ||
+           event.key === 'Enter' ||
+           event.key === 'Home' ||
+           event.key === 'End' ||
+           event.key === 'ArrowLeft' ||
+           event.key === 'ArrowRight' ||
+           event.key === 'ArrowUp' ||
            event.key === 'ArrowDown' ||
            (event.ctrlKey && ['a', 'c', 'v', 'x', 'z'].includes(event.key));
   }
@@ -1010,10 +1015,10 @@ export class HeaderComponent implements OnInit {
   getDNIError(): string {
     const control = this.registerForm.get('numeroDocumento');
     const tipoDocumento = this.registerForm.get('tipoDocumento')?.value;
-    
+
     if (control?.errors && control.touched) {
       if (control.errors['required']) return 'Este campo es obligatorio';
-      
+
       switch (tipoDocumento) {
         case 'DNI':
           if (control.errors['invalidDNI']) return 'DNI inválido: debe tener 8 dígitos, no empezar con 0 y ser un número válido';
@@ -1037,7 +1042,7 @@ export class HeaderComponent implements OnInit {
     }
     return '';
   }
-  
+
   getPasswordError(): string {
     const control = this.registerForm.get('contrasena');
     if (control?.errors && control.touched) {
@@ -1064,7 +1069,7 @@ export class HeaderComponent implements OnInit {
         return 'Ingresa documento';
     }
   }
-  
+
   // Método para obtener maxlength dinámico
   getDocumentMaxLength(): number {
     const tipoDocumento = this.registerForm.get('tipoDocumento')?.value;
@@ -1114,7 +1119,7 @@ export class HeaderComponent implements OnInit {
   updateTotals() {
     // Calcular total con garantía usando el total correcto (con descuentos aplicados)
     const totalFinal = this.total; // Ya incluye descuentos
-    
+
     // Asumiendo un costo de garantía de S/435 por producto seleccionado
     const warrantyBase = 435;
     const selectedItemsCount = this.getSelectedItemsCount();
@@ -1129,10 +1134,10 @@ export class HeaderComponent implements OnInit {
         item.selected = true;
       }
     });
-    
+
     // Resetear a la primera página
     this.currentPage = 1;
-    
+
     this.updateAllSelectedState();
     this.updateTotals();
   }
@@ -1353,6 +1358,7 @@ export class HeaderComponent implements OnInit {
         direccionBase += ` ${this.numero.trim()}`;
       }
       partes.push(direccionBase);
+
     }
     
     if (this.getSelectedDistritoName()) {
@@ -1396,6 +1402,7 @@ export class HeaderComponent implements OnInit {
     
     return partes.join(', ');
   }
+
     // Abrir modal de dirección
   openAddressModal(): void {
     this.showAddressModal = true;
@@ -1417,9 +1424,11 @@ export class HeaderComponent implements OnInit {
   limpiarFormularioDireccion(): void {
     this.selectedDepartamento = '';
     this.selectedProvincia = '';
+
     this.selectedDistrito = '';
     this.provincias = [];
     this.distritos = [];
+
     this.avenida = '';
     this.numero = '';
     this.referencias = '';
@@ -1459,6 +1468,7 @@ export class HeaderComponent implements OnInit {
           }
         }
       }, 100);
+
     }
     
     // Cargar otros campos
@@ -1532,9 +1542,9 @@ export class HeaderComponent implements OnInit {
     switch (this.selectedPaymentMethod) {
       case 'credit':
       case 'debit':
-        return this.cardDetails.number.length >= 16 && 
-               this.cardDetails.expiry.length === 5 && 
-               this.cardDetails.cvv.length >= 3 && 
+        return this.cardDetails.number.length >= 16 &&
+               this.cardDetails.expiry.length === 5 &&
+               this.cardDetails.cvv.length >= 3 &&
                this.cardDetails.name.trim().length > 0;
       case 'yape':
         return this.yapeDetails.phone.length === 9;
@@ -1578,7 +1588,7 @@ export class HeaderComponent implements OnInit {
     this.orderNumber = this.generateOrderNumber();
     this.showPaymentDetailsModal = false;
     this.showPurchaseCompleteModal = true;
-    
+
     // Simular procesamiento
     console.log('Procesando compra con método:', this.selectedPaymentMethod);
     console.log('Número de orden:', this.orderNumber);
@@ -1658,10 +1668,10 @@ export class HeaderComponent implements OnInit {
 
   // Métodos para validación de dirección
   isAddressFormValid(): boolean {
-    return this.selectedDepartamento.length > 0 && 
-           this.selectedProvincia.length > 0 && 
-           this.selectedDistrito.length > 0 && 
-           this.avenida.trim().length > 0 && 
+    return this.selectedDepartamento.length > 0 &&
+           this.selectedProvincia.length > 0 &&
+           this.selectedDistrito.length > 0 &&
+           this.avenida.trim().length > 0 &&
            this.numero.trim().length > 0;
   }
 
