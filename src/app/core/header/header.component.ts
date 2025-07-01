@@ -1,7 +1,8 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, inject } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
 import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
 import { AuthService } from '../../../shared/services/auth.service';
+import { DireccionesService, DireccionDTO, DireccionResponse } from '../../shared/services/direcciones.service';
 import { CommonModule } from '@angular/common';
 
 export interface CartItem {
@@ -519,6 +520,13 @@ export class HeaderComponent implements OnInit {
   isAuthenticated = false;
   nombreUsuario = '';
   userRole = '';
+
+  // Propiedades para direcciones
+  direcciones: DireccionDTO[] = [];
+  direccionPrincipal: DireccionDTO | null = null;
+  tieneDirecciones: boolean = false;
+  mensajeDireccion: string = '';
+
   // Datos mock del carrito con 5 productos
   cartItems: CartItem[] = [
     {
@@ -597,14 +605,21 @@ export class HeaderComponent implements OnInit {
 
   get igv(): number {
     return this.total * 0.18;
-  }
+
+  }  
 
   get total(): number {
     // El total es el subtotal menos los descuentos (sin IGV para este caso)
     return this.subtotal - this.getDiscountAmount();
   }
 
-  constructor(private router: Router, private fb: FormBuilder, private authService: AuthService) {
+  // Inyecciones de servicios
+  private fb = inject(FormBuilder);
+  private router = inject(Router);
+  private authService = inject(AuthService);
+  private direccionesService = inject(DireccionesService);
+
+  constructor() {
     this.loginForm = this.fb.group({
       nombreUsuario: ['', Validators.required],
       contrasena: ['', Validators.required]
@@ -640,19 +655,11 @@ export class HeaderComponent implements OnInit {
 
     // Actualizar validación
     documentControl?.updateValueAndValidity();
-  }
-
-  ngOnInit() {
+  }  ngOnInit() {
     this.checkAuthentication();
     this.updateCartCount();
     this.initializeCartState();
-    // Inicializar provincias y distritos si ya hay un departamento seleccionado
-    if (this.selectedDepartamento) {
-      this.onDepartamentoChange();
-    }
-    if (this.selectedProvincia) {
-      this.onProvinciaChange();
-    }
+    this.verificarDireccionesUsuario(); // Cargar direcciones al inicializar
   }
 
   checkAuthentication() {
@@ -1157,11 +1164,20 @@ export class HeaderComponent implements OnInit {
       this.currentPage--;
     }
   }
-
   // Métodos para el modal de checkout
   proceedToCheckout(): void {
     this.closeCartModal();
     this.showCheckoutModal = true;
+    
+    // Cargar direcciones automáticamente al abrir checkout
+    if (this.isAuthenticated) {
+      console.log('Cargando direcciones para el checkout...');
+      this.verificarDireccionesUsuario();
+    } else {
+      console.log('Usuario no autenticado, no se pueden cargar direcciones');
+      this.mensajeDireccion = 'Debes iniciar sesión para gestionar direcciones';
+      this.deliveryAddress = 'Inicia sesión para ver direcciones';
+    }
   }
 
   closeCheckoutModal(): void {
@@ -1177,103 +1193,299 @@ export class HeaderComponent implements OnInit {
     this.showPaymentModal = true;
   }
 
-  // Métodos para el modal de dirección
+  // ==================== MÉTODOS DE DIRECCIONES ====================
+  // Verificar si el usuario tiene direcciones
+  verificarDireccionesUsuario(): void {
+    if (!this.isAuthenticated) {
+      return;
+    }
+    
+    console.log('Verificando direcciones del usuario...');
+      this.direccionesService.verificarDirecciones().subscribe({
+      next: (response: DireccionResponse) => {
+        console.log('Respuesta verificación direcciones:', response);
+        this.tieneDirecciones = response.tieneDirecciones || false;
+          if (this.tieneDirecciones) {
+          // Si tiene direcciones, cargar la principal
+          this.cargarDireccionPrincipal();
+          // También cargar todas las direcciones para mostrar opciones
+          this.cargarTodasLasDirecciones();
+        } else {
+          this.mensajeDireccion = 'Aún no cuentas con dirección registrada';
+          this.deliveryAddress = 'Sin dirección registrada';
+          this.direcciones = []; // Limpiar array
+        }
+      },
+      error: (error: any) => {
+        console.error('Error al verificar direcciones:', error);        this.tieneDirecciones = false;
+        this.mensajeDireccion = 'Error al cargar direcciones';
+        this.deliveryAddress = 'Sin dirección registrada';
+        this.direcciones = [];
+      }
+    });
+  }
+    // Cargar dirección principal del usuario
+  cargarDireccionPrincipal(): void {
+    console.log('Cargando dirección principal...');
+      this.direccionesService.obtenerDireccionPrincipal().subscribe({
+      next: (response: DireccionResponse) => {
+        console.log('Respuesta dirección principal:', response);        if (response.success && response.data && !Array.isArray(response.data)) {
+          this.direccionPrincipal = response.data as DireccionDTO;
+          this.deliveryAddress = this.construirDireccionCompleta(this.direccionPrincipal);
+          this.mensajeDireccion = 'Dirección principal cargada';
+        } else {
+          this.mensajeDireccion = 'No se encontró dirección principal';
+          this.deliveryAddress = 'Sin dirección registrada';
+        }
+      },
+      error: (error: any) => {
+        console.error('Error al cargar dirección principal:', error);
+        this.mensajeDireccion = 'Error al cargar dirección principal';
+        this.deliveryAddress = 'Sin dirección registrada';
+      }
+    });
+  }
+  // Guardar nueva dirección
+  guardarDireccion(): void {
+    // Verificar autenticación primero
+    if (!this.isAuthenticated) {
+      alert('Debes estar autenticado para guardar una dirección');
+      return;
+    }
+    
+    // Verificar que existe un token
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('No se encontró token de autenticación. Por favor, inicia sesión nuevamente.');
+      return;
+    }
+    
+    console.log('Usuario autenticado:', this.isAuthenticated);
+    console.log('Token presente:', !!token);
+    
+    if (!this.isAddressFormValid()) {
+      alert('Por favor completa todos los campos obligatorios');
+      return;
+    }
+    
+    // Construir objeto dirección
+    const nuevaDireccion: DireccionDTO = {
+      direccion: this.construirDireccionDesdeForm(),
+      departamento: this.selectedDepartamento,
+      provincia: this.getSelectedProvinciaName(),
+      distrito: this.getSelectedDistritoName(),
+      avenidaCalleJiron: this.avenida,
+      numero: this.numero,
+      referencia: this.referencias,
+      esPrincipal: !this.tieneDirecciones // Si es la primera, será principal
+    };
+    
+    console.log('Guardando dirección:', nuevaDireccion);
+      this.direccionesService.crearDireccion(nuevaDireccion).subscribe({
+      next: (response: DireccionResponse) => {
+        console.log('Respuesta crear dirección:', response);        if (response.success && response.data && !Array.isArray(response.data)) {
+          // Actualizar estado local
+          this.direcciones.push(response.data as DireccionDTO);
+          this.tieneDirecciones = true;
+          
+          if (nuevaDireccion.esPrincipal) {
+            this.direccionPrincipal = response.data as DireccionDTO;
+            this.deliveryAddress = this.construirDireccionCompleta(response.data as DireccionDTO);
+          }
+          
+          this.mensajeDireccion = 'Dirección guardada correctamente';
+          
+          // Cerrar modal
+          this.closeAddressModal();
+          
+          alert('Dirección guardada exitosamente');
+          
+          // Recargar direcciones para actualizar el estado
+          this.verificarDireccionesUsuario();
+        } else {
+          alert('Error al guardar la dirección: ' + response.message);
+        }
+      },      error: (error: any) => {
+        console.error('Error completo al crear dirección:', error);
+        console.error('Status:', error.status);
+        console.error('Error message:', error.message);
+        console.error('Error details:', error.error);
+        
+        let errorMessage = 'Error al guardar la dirección.';
+        
+        if (error.status === 403) {
+          errorMessage = 'No tienes permisos para crear direcciones. Verifica tu autenticación.';
+        } else if (error.status === 401) {
+          errorMessage = 'Tu sesión ha expirado. Por favor, inicia sesión nuevamente.';
+        } else if (error.status === 0) {
+          errorMessage = 'No se puede conectar al servidor. Verifica que el backend esté ejecutándose.';
+        }
+        
+        alert(errorMessage);
+      }
+    });
+  }
+  
+  // Cargar todas las direcciones del usuario
+  cargarTodasLasDirecciones(): void {
+    console.log('Cargando todas las direcciones del usuario...');
+    
+    this.direccionesService.obtenerDirecciones().subscribe({
+      next: (response: DireccionResponse) => {
+        console.log('Respuesta todas las direcciones:', response);
+        if (response.success && response.data && Array.isArray(response.data)) {
+          this.direcciones = response.data as DireccionDTO[];
+          console.log('Direcciones cargadas:', this.direcciones.length);
+        } else {
+          console.log('No se encontraron direcciones en formato array');
+          this.direcciones = [];
+        }
+      },
+      error: (error: any) => {
+        console.error('Error al cargar todas las direcciones:', error);
+        this.direcciones = [];
+      }
+    });
+  }
+
+  // Construir dirección completa desde el formulario
+  construirDireccionDesdeForm(): string {
+    const partes = [];
+    
+    if (this.avenida.trim()) {
+      let direccionBase = this.avenida.trim();
+      if (this.numero.trim()) {
+        direccionBase += ` ${this.numero.trim()}`;
+      }
+      partes.push(direccionBase);
+
+    }
+    
+    if (this.getSelectedDistritoName()) {
+      partes.push(this.getSelectedDistritoName());
+    }
+    
+    if (this.getSelectedProvinciaName()) {
+      partes.push(this.getSelectedProvinciaName());
+    }
+    
+    if (this.selectedDepartamento) {
+      partes.push(this.selectedDepartamento);
+    }
+    
+    return partes.join(', ');
+  }
+  
+  // Construir dirección completa desde objeto DireccionDTO
+  construirDireccionCompleta(direccion: DireccionDTO): string {
+    const partes = [];
+    
+    if (direccion.avenidaCalleJiron) {
+      let direccionBase = direccion.avenidaCalleJiron;
+      if (direccion.numero) {
+        direccionBase += ` ${direccion.numero}`;
+      }
+      partes.push(direccionBase);
+    }
+    
+    if (direccion.distrito) {
+      partes.push(direccion.distrito);
+    }
+    
+    if (direccion.provincia) {
+      partes.push(direccion.provincia);
+    }
+    
+    if (direccion.departamento) {
+      partes.push(direccion.departamento);
+    }
+    
+    return partes.join(', ');
+  }
+
+    // Abrir modal de dirección
   openAddressModal(): void {
     this.showAddressModal = true;
+    this.limpiarFormularioDireccion();
+    
+    // Si ya hay una dirección principal, cargar sus datos para edición
+    if (this.direccionPrincipal) {
+      this.cargarDireccionEnFormulario(this.direccionPrincipal);
+    }
   }
-
+  
+  // Cerrar modal de dirección
   closeAddressModal(): void {
     this.showAddressModal = false;
-    // Limpiar los campos del formulario
+    this.limpiarFormularioDireccion();
+  }
+  
+  // Limpiar formulario de dirección
+  limpiarFormularioDireccion(): void {
     this.selectedDepartamento = '';
     this.selectedProvincia = '';
+
     this.selectedDistrito = '';
     this.provincias = [];
     this.distritos = [];
+
+    this.avenida = '';
+    this.numero = '';
+    this.referencias = '';
+  }
+  
+  // Cargar dirección existente en el formulario para edición
+  cargarDireccionEnFormulario(direccion: DireccionDTO): void {
+    console.log('Cargando dirección en formulario:', direccion);
+    
+    // Cargar departamento
+    if (direccion.departamento) {
+      this.selectedDepartamento = direccion.departamento.toLowerCase();
+      this.onDepartamentoChange();
+      
+      // Cargar provincia después de un pequeño delay para que se carguen las opciones
+      setTimeout(() => {
+        if (direccion.provincia) {
+          // Buscar el valor correspondiente en las provincias
+          const provinciaEncontrada = this.provincias.find(p => 
+            p.name.toLowerCase() === direccion.provincia?.toLowerCase()
+          );
+          if (provinciaEncontrada) {
+            this.selectedProvincia = provinciaEncontrada.value;
+            this.onProvinciaChange();
+            
+            // Cargar distrito después de otro delay
+            setTimeout(() => {
+              if (direccion.distrito) {
+                const distritoEncontrado = this.distritos.find(d => 
+                  d.name.toLowerCase() === direccion.distrito?.toLowerCase()
+                );
+                if (distritoEncontrado) {
+                  this.selectedDistrito = distritoEncontrado.value;
+                }
+              }
+            }, 100);
+          }
+        }
+      }, 100);
+
+    }
+    
+    // Cargar otros campos
+    this.avenida = direccion.avenidaCalleJiron || '';
+    this.numero = direccion.numero || '';
+    this.referencias = direccion.referencia || '';
   }
 
-  confirmAddress(): void {
-    // Construir la dirección completa
-    const departamento = this.ubicacionesData[this.selectedDepartamento]?.name || '';
-    const provincia = this.ubicacionesData[this.selectedDepartamento]?.provincias[this.selectedProvincia]?.name || '';
-    const distritoObj = this.distritos.find(d => d.value === this.selectedDistrito);
-    const distrito = distritoObj?.name || '';
-
-    if (departamento && provincia && distrito && this.avenida && this.numero) {
-      let direccionCompleta = `${this.avenida} ${this.numero}`;
-      if (this.referencias) {
-        direccionCompleta += `, ${this.referencias}`;
-      }
-      direccionCompleta += `, ${distrito}, ${provincia}, ${departamento}`;
-
-      this.deliveryAddress = direccionCompleta;
-      console.log('Dirección confirmada:', this.deliveryAddress);
+  // Confirmar dirección y continuar
+  confirmarDireccion(): void {
+    if (this.tieneDirecciones && this.direccionPrincipal) {
+      // Usuario ya tiene dirección, solo continuar
       this.closeAddressModal();
     } else {
-      alert('Por favor completa todos los campos obligatorios (Departamento, Provincia, Distrito, Avenida/Calle y Número)');
+      // Usuario no tiene dirección, guardar nueva
+      this.guardarDireccion();
     }
-  }
-
-  // Método para manejar cambio de departamento
-  onDepartamentoChange(): void {
-    // Asegúrate de que selectedDepartamento es el value (key) del objeto
-    // Ejemplo: 'amazonas', 'ancash', etc.
-    this.selectedProvincia = '';
-    this.selectedDistrito = '';
-    this.provincias = [];
-    this.distritos = [];
-
-    if (this.selectedDepartamento && this.ubicacionesData[this.selectedDepartamento]) {
-      const departamentoData = this.ubicacionesData[this.selectedDepartamento];
-      this.provincias = Object.keys(departamentoData.provincias).map(key => ({
-        value: key,
-        name: departamentoData.provincias[key].name
-      }));
-    }
-  }
-
-  // Método para manejar cambio de provincia
-  onProvinciaChange(): void {
-    console.log('Provincia seleccionada:', this.selectedProvincia);
-
-    // Resetear distrito
-    this.selectedDistrito = '';
-    this.distritos = [];
-
-    if (
-      this.selectedDepartamento &&
-      this.selectedProvincia &&
-      this.ubicacionesData[this.selectedDepartamento] &&
-      this.ubicacionesData[this.selectedDepartamento].provincias[this.selectedProvincia]
-    ) {
-      const provinciaData = this.ubicacionesData[this.selectedDepartamento].provincias[this.selectedProvincia];
-      console.log('Datos de la provincia:', provinciaData);
-
-      if (provinciaData && provinciaData.distritos) {
-        this.distritos = provinciaData.distritos.map((distrito: string) => ({
-          value: distrito.toLowerCase().replace(/\s+/g, '_').replace(/[áéíóúñ]/g, match => {
-            const replacements: {[key: string]: string} = {'á': 'a', 'é': 'e', 'í': 'i', 'ó': 'o', 'ú': 'u', 'ñ': 'n'};
-            return replacements[match] || match;
-          }),
-          name: distrito
-        }));
-        console.log('Distritos cargados:', this.distritos);
-      }
-    }
-  }
-
-  // Método para obtener la lista de departamentos
-  getDepartamentos(): {value: string, name: string}[] {
-    const departamentos = Object.keys(this.ubicacionesData).map(key => ({
-      value: key,
-      name: this.ubicacionesData[key].name
-    }));
-    console.log('Departamentos disponibles:', departamentos);
-    return departamentos;
-  }
-
-  get selectedDepartamentoName(): string {
-    return this.ubicacionesData[this.selectedDepartamento]?.name || '';
   }
 
   // Métodos para el modal de pago
@@ -1463,6 +1675,38 @@ export class HeaderComponent implements OnInit {
            this.numero.trim().length > 0;
   }
 
+  // Manejar cambio de departamento
+  onDepartamentoChange(): void {
+    this.selectedProvincia = '';
+    this.selectedDistrito = '';
+    this.provincias = [];
+    this.distritos = [];
+    
+    if (this.selectedDepartamento && this.ubicacionesData[this.selectedDepartamento]) {
+      const departamentoData = this.ubicacionesData[this.selectedDepartamento];
+      this.provincias = Object.keys(departamentoData.provincias).map(key => ({
+        value: key,
+        name: departamentoData.provincias[key].name
+      }));
+    }
+  }
+  // Manejar cambio de provincia
+  onProvinciaChange(): void {
+    this.selectedDistrito = '';
+    this.distritos = [];
+    
+    if (this.selectedProvincia && this.selectedDepartamento) {
+      const departamentoData = this.ubicacionesData[this.selectedDepartamento];
+      if (departamentoData && departamentoData.provincias[this.selectedProvincia]) {
+        const provinciaData = departamentoData.provincias[this.selectedProvincia];
+        this.distritos = provinciaData.distritos.map((distrito: string) => ({
+          value: distrito.toLowerCase().replace(/\s+/g, '-'),
+          name: distrito
+        }));
+      }
+    }
+  }
+
   getSelectedProvinciaName(): string {
     const provincia = this.provincias.find(p => p.value === this.selectedProvincia);
     return provincia ? provincia.name : '';
@@ -1471,5 +1715,57 @@ export class HeaderComponent implements OnInit {
   getSelectedDistritoName(): string {
     const distrito = this.distritos.find(d => d.value === this.selectedDistrito);
     return distrito ? distrito.name : '';
+  }
+
+  // Métodos para el template HTML
+  get selectedDepartamentoName(): string {
+    if (this.selectedDepartamento && this.ubicacionesData[this.selectedDepartamento]) {
+      return this.ubicacionesData[this.selectedDepartamento].name;
+    }
+    return '';
+  }
+
+  getDepartamentos(): {value: string, name: string}[] {
+    return Object.keys(this.ubicacionesData).map(key => ({
+      value: key,
+      name: this.ubicacionesData[key].name
+    }));
+  }
+
+  confirmAddress(): void {
+    this.guardarDireccion();
+  }
+
+  // Seleccionar una dirección existente
+  seleccionarDireccion(direccion: DireccionDTO): void {
+    this.direccionPrincipal = direccion;
+    this.deliveryAddress = this.construirDireccionCompleta(direccion);
+    this.mensajeDireccion = 'Dirección seleccionada';
+    
+    console.log('Dirección seleccionada:', direccion);
+    
+    // Opcional: establecer como principal en el backend
+    if (direccion.id && !direccion.esPrincipal) {
+      this.establecerComoPrincipal(direccion.id);
+    }
+  }
+
+  // Establecer dirección como principal
+  establecerComoPrincipal(direccionId: number): void {
+    this.direccionesService.establecerComoPrincipal(direccionId).subscribe({
+      next: (response: DireccionResponse) => {
+        console.log('Dirección establecida como principal:', response);
+        if (response.success) {
+          // Actualizar el estado local
+          this.direcciones.forEach(dir => {
+            dir.esPrincipal = dir.id === direccionId;
+          });
+          this.mensajeDireccion = 'Dirección principal actualizada';
+        }
+      },
+      error: (error: any) => {
+        console.error('Error al establecer como principal:', error);
+      }
+    });
   }
 }

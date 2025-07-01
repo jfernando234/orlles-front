@@ -2658,3 +2658,121 @@
   background: #ccc;
   cursor: not-allowed;
 }
+
+/* Estilos para direcciones disponibles */
+.direcciones-disponibles {
+  margin-top: 15px;
+  padding: 10px;
+  background-color: #f8f9fa;
+  border-radius: 8px;
+  border: 1px solid #e9ecef;
+}
+
+.direcciones-titulo {
+  font-size: 14px;
+  font-weight: 600;
+  color: #495057;
+  margin: 0 0 10px 0;
+}
+
+.direcciones-lista {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.direccion-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px;
+  background: white;
+  border: 1px solid #dee2e6;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  font-size: 13px;
+}
+
+.direccion-item:hover {
+  background-color: #e7f3ff;
+  border-color: #0066cc;
+  transform: translateY(-1px);
+}
+
+.direccion-item.direccion-activa {
+  background-color: #e7f3ff;
+  border-color: #0066cc;
+  box-shadow: 0 2px 4px rgba(0, 102, 204, 0.1);
+}
+
+.direccion-item i {
+  color: #0066cc;
+  font-size: 12px;
+  flex-shrink: 0;
+}
+
+.direccion-item span {
+  flex: 1;
+  color: #495057;
+  line-height: 1.4;
+}
+
+.badge-principal {
+  background-color: #28a745;
+  color: white;
+  font-size: 10px;
+  padding: 2px 6px;
+  border-radius: 10px;
+  font-weight: 500;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.no-direcciones {
+  margin-top: 15px;
+  padding: 15px;
+  background-color: #fff3cd;
+  border: 1px solid #ffeaa7;
+  border-radius: 8px;
+}
+
+.mensaje-no-direcciones {
+  margin: 0;
+  color: #856404;
+  font-size: 14px;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.mensaje-no-direcciones i {
+  color: #ffc107;
+  font-size: 16px;
+}
+
+/* Mejorar el botón de cambiar dirección */
+.change-address-btn {
+  background: linear-gradient(135deg, #0066cc, #004499);
+  color: white;
+  border: none;
+  padding: 8px 12px;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.change-address-btn:hover {
+  background: linear-gradient(135deg, #0052a3, #003366);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 8px rgba(0, 102, 204, 0.2);
+}
+
+.change-address-btn i {
+  font-size: 11px;
+}
