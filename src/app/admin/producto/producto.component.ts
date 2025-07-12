@@ -127,7 +127,7 @@ export class ProductoComponent implements OnInit {
       this.form.markAllAsTouched();
       return;
     }
-    const productoActualizado: IProducto = {
+    const productoActualizado: IProductoC = {
       ...(typeof this.selectedId === 'number' ? { id: this.selectedId } : {}),
       nombre: this.form.value.nombre,
       marca: this.form.value.marca,
