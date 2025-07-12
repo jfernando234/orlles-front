@@ -3,7 +3,8 @@ import { CommonModule } from '@angular/common';
 import { CardProductoComponent } from "../../commom-/card-producto/card-producto.component";
 import { ProductoService } from '../../../shared/services/producto.services';
 import { IProducto } from '../../../shared/models/producto';
-import { ContentDetalleComponent } from "./content-detalle/content-detalle.component";
+import { ContentDetalleComponent } from './content-detalle/content-detalle.component';
+
 
 
 interface Category {
@@ -21,7 +22,7 @@ interface Brand {
 @Component({
   selector: 'app-content',
   standalone: true,
-  imports: [CommonModule, CardProductoComponent, ContentDetalleComponent],
+  imports: [CommonModule, CardProductoComponent,ContentDetalleComponent],
   templateUrl: './content.component.html',
   styleUrls: ['./content.component.css']
 })
