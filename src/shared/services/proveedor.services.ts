@@ -23,4 +23,22 @@ export class ProveedorService {
   getProveedor(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/proveedores/GetAll`);
   }
+
+  eliminarProveedor(id: number): Observable<any> {
+    return this.http.delete<any>(`${this.apiUrl}/proveedores/eliminar/${id}`).pipe(
+        catchError(error => {
+            Swal.fire('Error', error.error, 'warning');
+            return throwError(() => error);
+        })
+    );
+}
+
+actualizarProveedor(proveedor: IProveedor): Observable<IProveedor> {
+  return this.http.put<IProveedor>(`${this.apiUrl}/proveedores/actualizar/${proveedor.id}`, proveedor).pipe(
+    catchError(error => {
+      Swal.fire('Error', error.error, 'warning');
+      return throwError(() => error);
+    })
+  );
+}
 }

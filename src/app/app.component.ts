@@ -4,6 +4,7 @@ import { CommonModule } from '@angular/common';
 import { HeaderComponent } from './core/header/header.component';
 import { FooterComponent } from './core/footer/footer.component';
 import { ContentComponent } from './core/content/content.component';
+import { AdminComponent } from './admin/admin.component';
 import { filter } from 'rxjs/operators';
 
 @Component({
@@ -15,7 +16,8 @@ import { filter } from 'rxjs/operators';
     CommonModule,
     HeaderComponent,
     ContentComponent,
-    FooterComponent
+    FooterComponent,
+    AdminComponent
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']
