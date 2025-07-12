@@ -1,0 +1,14 @@
+{
+    "configurations": [
+        {
+            "type": "java",
+            "name": "Spring Boot-SbootporllesApplication<sbootporlles>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.example.sbootporlles.SbootporllesApplication",
+            "projectName": "sbootporlles",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        }
+    ]
+}
