@@ -17,12 +17,32 @@
                             <div class="row g-3">
                                 <div class="col-md-5">
                                     <label for="nombre-proveedor" class="form-label">Nombre o Razón Social</label>
-                                    <input class="form-control" type="text"
-                                    formControlName="nombrerazon">
+                                    <input class="form-control" type="text" formControlName="nombrerazon">
                                 </div>
                                 <div class="col-md-2">
                                     <label for="pais" class="form-label">País</label>
-                                    <input type="text" class="form-control" formControlName="pais">
+                                    <select class="form-control" formControlName="pais">
+                                        <option value="" disabled selected>Seleccione un país</option>
+                                        <option value="Argentina">Argentina</option>
+                                        <option value="Bolivia">Bolivia</option>
+                                        <option value="Brasil">Brasil</option>
+                                        <option value="Chile">Chile</option>
+                                        <option value="Colombia">Colombia</option>
+                                        <option value="Costa Rica">Costa Rica</option>
+                                        <option value="Cuba">Cuba</option>
+                                        <option value="Ecuador">Ecuador</option>
+                                        <option value="El Salvador">El Salvador</option>
+                                        <option value="Guatemala">Guatemala</option>
+                                        <option value="Honduras">Honduras</option>
+                                        <option value="México">México</option>
+                                        <option value="Nicaragua">Nicaragua</option>
+                                        <option value="Panamá">Panamá</option>
+                                        <option value="Paraguay">Paraguay</option>
+                                        <option value="Perú">Perú</option>
+                                        <option value="República Dominicana">República Dominicana</option>
+                                        <option value="Uruguay">Uruguay</option>
+                                        <option value="Venezuela">Venezuela</option>
+                                    </select>
                                 </div>
                                 <div class="col-md-5">
                                     <label for="contacto" class="form-label">Persona de Contacto</label>
@@ -36,10 +56,6 @@
                                     <label for="telefono" class="form-label">Teléfono</label>
                                     <input type="text" class="form-control" formControlName="telefono">
                                 </div>
-                                <div class="col-md-3">
-                                    <label for="tiempo-entrega" class="form-label">Tiempo de Entrega</label>
-                                    <input type="number" class="form-control" formControlName="tiempoentrega" min="0" >
-                                </div>
                                 <div class="col-md-2">
                                     <label for="estado" class="form-label">Estado</label>
                                     <select class="form-control" formControlName="estado">
@@ -49,9 +65,12 @@
                                         <option value="Suspendido">Suspendido</option>
                                     </select>
                                 </div>
-                                <div class="col-md-12">
-                                    <label for="certificaciones" class="form-label">Certificaciones</label>
-                                    <textarea class="form-control" formControlName="certificaciones" rows="1"></textarea>
+                                <div class="col-12">
+                                    <label class="control-label">Imagen</label>
+                                    <input type="file" class="form-control" (change)="onFileSelected($event)">
+                                </div>
+                                <div class="col-md-4" *ngIf="imagePreview">
+                                  <img [src]="imagePreview" alt="Vista previa" class="img-thumbnail" style="max-width: 200px;">
                                 </div>
                                 <div class="col-12">
                                     <div class="form-actions">
@@ -77,10 +96,10 @@
                             <i class="fas fa-list me-2"></i> Lista de Proveedores
                         </div>
                         <div class="action-buttons d-flex justify-content-end" id="proveedor-actions">
-                            <button class="btn btn-sm btn-outline-primary me-2" id="proveedor-edit-btn" disabled>
+                            <button class="btn btn-sm btn-outline-primary me-2" id="proveedor-edit-btn" (click)="editarProveedor()" disabled>
                                 <i class="fas fa-edit me-1"></i> Editar
                             </button>
-                            <button class="btn btn-sm btn-outline-danger" id="proveedor-delete-btn" disabled>
+                            <button class="btn btn-sm btn-outline-danger" id="proveedor-delete-btn" (click)="eliminarProveedor()" disabled>
                                 <i class="fas fa-trash me-1"></i> Eliminar
                             </button>
                         </div>
@@ -94,22 +113,20 @@
                                         <th>ID</th>
                                         <th>Nombre</th>
                                         <th>País</th>
-                                        <th>Representante</th>
+                                        <th>Contacto</th>
                                         <th>Correo Electrónico</th>
                                         <th>Teléfono</th>
-                                        <th>Tiempo(días)</th>
                                         <th>Estado</th>
                                     </tr>
                                 </thead>
                                 <tbody>
-                                  <tr *ngFor="let p of proveedor">
+                                  <tr *ngFor="let p of proveedor" (click)="seleccionarProveedor(p)" [class.table-active]="p === proveedorSeleccionado">
                                     <td>{{ p.id }}</td>
-                                    <td>{{ p.nombre}}</td>
+                                    <td>{{ p.nombre }}</td>
                                     <td>{{ p.pais }}</td>
                                     <td>{{ p.contacto }}</td>
                                     <td>{{ p.correoElectronico }}</td>
                                     <td>{{ p.telefono }}</td>
-                                    <td>{{ p.tiempoEntregaPromedio }}</td>
                                     <td>
                                       <span *ngIf="p.estado == '1'">Activo</span>
                                       <span *ngIf="p.estado == '0'">Inactivo</span>

@@ -20,4 +20,11 @@ export class ProductoService {
   getImagenProducto(id: number): Observable<Blob> {
     return this.http.get(`${this.apiUrl}/productos/${id}/imagen`, { responseType: 'blob' });
   }
+  actualizarProducto(formData: FormData): Observable<any> {
+    return this.http.put(`${this.apiUrl}/productos/actualizar`, formData);
+  }
+
+  eliminarProducto(id: number): Observable<any> {
+    return this.http.delete(`${this.apiUrl}/productos/eliminar/${id}`);
+  }
 }

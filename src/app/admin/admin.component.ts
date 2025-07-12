@@ -1,7 +1,7 @@
 import { Component } from '@angular/core';
 import { ProductoComponent } from "./producto/producto.component";
 import { ProveedoresComponent } from './proveedores/proveedores.component';
-import { ClientesComponent } from './clientes/clientes.component';
+import { VentasComponent } from './ventas/ventas.component';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 
@@ -9,31 +9,31 @@ import { Router } from '@angular/router';
   selector: 'app-admin',
   templateUrl: './admin.component.html',
   styleUrl: './admin.component.css',
-  imports: [ProductoComponent, ProveedoresComponent, ClientesComponent, CommonModule],
+  imports: [ProductoComponent, ProveedoresComponent, VentasComponent, CommonModule],
   standalone: true
 })
 export class AdminComponent {
   constructor(private router: Router) {}
 
   mostrarProductoComponent = false;
-  mostrarProveedoresComponent = false;
-  mostrarClientesComponent = false;
+  mostrarProveedoresComponent = true;
+  mostrarVentasComponent = false;
 
   mostrarProducto() {
     this.mostrarProductoComponent = true;
     this.mostrarProveedoresComponent = false;
-    this.mostrarClientesComponent = false;
+    this.mostrarVentasComponent = false;
   }
 
   mostrarProvedores() {
     this.mostrarProductoComponent = false;
     this.mostrarProveedoresComponent = true;
-    this.mostrarClientesComponent = false;
+    this.mostrarVentasComponent = false;
   }
-  mostrarClientes() {
+  mostrarVentas() {
     this.mostrarProductoComponent = false;
     this.mostrarProveedoresComponent = false;
-    this.mostrarClientesComponent = true;
+    this.mostrarVentasComponent = true;
   }
 
 

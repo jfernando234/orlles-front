@@ -4,7 +4,7 @@ import { HomeComponent } from './pages/home/home.component';
 import { AdminComponent } from './admin/admin.component';
 import { ProductoComponent } from './admin/producto/producto.component';
 import { ProveedoresComponent } from './admin/proveedores/proveedores.component';
-import { ClientesComponent } from './admin/clientes/clientes.component';
+import { VentasComponent } from './admin/ventas/ventas.component';
 import { LoginComponent } from './auth/login/login.component';
 import { AuthGuard } from '../shared/guards/auth.guard';
 
@@ -19,7 +19,7 @@ const routes: Routes = [
     children: [
       { path: 'producto', component: ProductoComponent },
       { path: 'proveedores', component: ProveedoresComponent },
-      { path: 'clientes', component: ClientesComponent },
+      { path: 'ventas', component: VentasComponent },
       { path: '', redirectTo: 'producto', pathMatch: 'full' }
     ]
   },
@@ -29,7 +29,7 @@ const routes: Routes = [
     children: [
       { path: 'producto', component: ProductoComponent },
       { path: 'proveedores', component: ProveedoresComponent },
-      { path: 'clientes', component: ClientesComponent },
+      { path: 'ventas', component: VentasComponent },
       { path: '', redirectTo: 'producto', pathMatch: 'full' }
     ]
   },

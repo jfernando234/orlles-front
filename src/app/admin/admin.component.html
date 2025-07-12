@@ -17,8 +17,8 @@
                 </a>
             </li>
             <li class="nav-item">
-                <a class="nav-link" href="javascript:void(0)" (click)="mostrarClientes()">
-                    <i class="fas fa-users"></i> Clientes
+                <a class="nav-link" href="javascript:void(0)" (click)="mostrarVentas()">
+                    <i class="fas fa-chart-line"></i> Ventas
                 </a>
             </li>
         </ul>
@@ -45,8 +45,8 @@
 <ng-container *ngIf="mostrarProveedoresComponent">
     <app-proveedores></app-proveedores>
 </ng-container>
-<ng-container *ngIf="mostrarClientesComponent">
-    <app-clientes></app-clientes>
+<ng-container *ngIf="mostrarVentasComponent">
+    <app-ventas></app-ventas>
 </ng-container>
 
 
