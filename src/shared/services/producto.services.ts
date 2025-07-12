@@ -17,7 +17,7 @@ export class ProductoService {
   getProductos(): Observable<any[]> {
     return this.http.get<any[]>(`${this.apiUrl}/productos/GetAll`);
   }
-  getImagenUrl(id: number): string {
-    return `http://localhost:8080/productos/imagen/${id}`;
+  getImagenProducto(id: number): Observable<Blob> {
+    return this.http.get(`${this.apiUrl}/productos/${id}/imagen`, { responseType: 'blob' });
   }
 }

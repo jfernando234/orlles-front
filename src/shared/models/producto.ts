@@ -10,12 +10,25 @@ export interface DataProducto {
     totalData: number;
     data: IProducto[];
 }
+//listar priductos
 export interface IProducto {
-  ID_producto?: number; // Opcional, ya que puede ser autogenerado
+  id: number;
+  nombre: string;
+  marca: string;
+  especificaciones: string;
+  precioUnitario: number;
+  idproveedor: number;
+  stockMinimo: number;
+  imagen: string;
+}
+//guardarproducto
+export interface IProductoC {
+  id?: number;
   nombre: string;
   marca: string;
   especificaciones: string;
   precioUnitario: number;
   idproveedor: number;
   stockMinimo?: number;
+  imagen?: string;
 }

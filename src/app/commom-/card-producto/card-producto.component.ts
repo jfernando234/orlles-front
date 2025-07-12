@@ -1,5 +1,6 @@
 import { Component, Input } from '@angular/core';
 import { NgIf, NgFor, NgClass } from '@angular/common';
+import { IProducto } from '../../../shared/models/producto';
 
 @Component({
   selector: 'app-card-producto',
@@ -9,7 +10,7 @@ import { NgIf, NgFor, NgClass } from '@angular/common';
   standalone: true
 })
 export class CardProductoComponent {
-  @Input() producto: any;
+ @Input() producto!: IProducto;
   @Input() imagenUrl!: string;
 
 }
