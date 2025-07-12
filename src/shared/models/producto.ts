@@ -18,4 +18,5 @@ export interface IProducto {
   precioUnitario: number;
   idproveedor: number;
   stockMinimo?: number;
+  id?: number;
 }
