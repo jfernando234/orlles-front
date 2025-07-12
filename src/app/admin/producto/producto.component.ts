@@ -4,7 +4,7 @@ import { FormBuilder, FormGroup,Validators } from '@angular/forms';
 import { NgModule } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ReactiveFormsModule } from '@angular/forms';
-import { IProducto } from '../../../shared/models/producto';
+import { IProducto, IProductoC } from '../../../shared/models/producto';
 import Swal from 'sweetalert2';
 import { ProveedorService } from '../../../shared/services/proveedor.services';
 @Component({
@@ -66,7 +66,7 @@ export class ProductoComponent implements OnInit {
       this.form.markAllAsTouched();
       return;
     }
-    const producto : IProducto = {
+    const producto : IProductoC = {
       nombre: this.form.value.nombre,
       marca: this.form.value.marca,
       precioUnitario: this.form.value.precio,

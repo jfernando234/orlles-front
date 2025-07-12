@@ -3,6 +3,7 @@ import { CommonModule } from '@angular/common';
 import { CardProductoComponent } from "../../commom-/card-producto/card-producto.component";
 import { ProductoService } from '../../../shared/services/producto.services';
 import { IProducto } from '../../../shared/models/producto';
+import { ContentDetalleComponent } from "./content-detalle/content-detalle.component";
 
 
 interface Category {
@@ -20,7 +21,7 @@ interface Brand {
 @Component({
   selector: 'app-content',
   standalone: true,
-  imports: [CommonModule, CardProductoComponent],
+  imports: [CommonModule, CardProductoComponent, ContentDetalleComponent],
   templateUrl: './content.component.html',
   styleUrls: ['./content.component.css']
 })
@@ -53,29 +54,44 @@ export class ContentComponent implements OnInit {
   ];
   productos: IProducto[] = [];
   favorites: number[] = [];
+  imageUrl!: Blob;
+  idProductos: Array<any> = [];
+  selectedProducto: IProducto | null = null;
+
   constructor(private productoService: ProductoService) {}
 
-  ngOnInit() {
-    this.productoService.getProductos().subscribe(data => {
-      this.productos = data;
-      this.productos.forEach(p => {
-      if (p.ID_producto != null) {
-        console.log('Producto:', p.ID_producto, 'URL Imagen:', this.getImagenUrl(p.ID_producto));
-      } else {
-        console.log('Producto:', p.ID_producto, 'URL Imagen: undefined');
-      }
-    });
+  ngOnInit(): void {
+
+    /*this.productoService.getProductos().subscribe(productos => {
+      this.productos = productos;
+      console.log('Productos cargados:', this.productos);
+      this.productos.forEach(producto => {
+
+        this.productoService.getImagenProducto(producto.id).subscribe(blob => {
+          producto.imagen = this.imageUrl;
+        });
+      });
+    });*/
+    this.productoService.getProductos().subscribe(productos => {
+      this.productos = productos.map(producto => ({
+        ...producto,
+        imagen: producto.id
+          ? `http://localhost:8080/productos/${producto.id}/imagen`
+          : 'assets/images/no-image.png'
+      }));
     });
     this.startCarousel();
     this.loadFavorites();
   }
-  @Input() getImagenUrl!: (ID_producto: number) => string;
+
   ngOnDestroy() {
     if (this.carouselTimer) {
       clearInterval(this.carouselTimer);
     }
   }
-
+  onSelectProduct(producto: IProducto) {
+    this.selectedProducto = producto;
+  }
   // Carousel methods
   startCarousel() {
     this.carouselTimer = setInterval(() => {
@@ -99,40 +115,6 @@ export class ContentComponent implements OnInit {
   onBrandChange() {
 
   }
-  /*
-  applyFilters() {
-    let filtered = [...this.products];
-
-    // Filter by price
-    filtered = filtered.filter(product => {
-      const price = parseFloat(product.price.replace(',', ''));
-      return price >= this.selectedPriceMin && price <= this.selectedPriceMax;
-    });
-
-    // Filter by categories
-    const selectedCategories = this.categories
-      .filter(cat => cat.selected)
-      .map(cat => cat.id);
-
-    if (selectedCategories.length > 0) {
-      filtered = filtered.filter(product =>
-        selectedCategories.includes(product.category)
-      );
-    }
-
-    // Filter by brands
-    const selectedBrands = this.brands
-      .filter(brand => brand.selected)
-      .map(brand => brand.id);
-
-    if (selectedBrands.length > 0) {
-      filtered = filtered.filter(product =>
-        selectedBrands.includes(product.brand)
-      );
-    }
-
-    this.filteredProducts = filtered;
-  }*/
 
   // Product actions
   onViewProduct(productId: number) {

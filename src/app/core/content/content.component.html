@@ -32,12 +32,11 @@
   </div>
 
   <!-- Product Section -->
-  <div class="product-section">
+ <div class="product-section" *ngIf="!selectedProducto">
     <!-- Filters Column -->
     <div class="filters-sidebar">
       <div class="filter-card">
         <h3 class="filter-title">Filtros</h3>
-
         <!-- Price Range -->
         <div class="filter-group">
           <h4 class="filter-subtitle">Rango de Precio</h4>
@@ -58,7 +57,6 @@
             </div>
           </div>
         </div>
-
         <!-- Categories -->
         <div class="filter-group">
           <h4 class="filter-subtitle">Categoría</h4>
@@ -72,7 +70,6 @@
             </div>
           </div>
         </div>
-
         <!-- Brands -->
         <div class="filter-group">
           <h4 class="filter-subtitle">Marca</h4>
@@ -87,14 +84,14 @@
         </div>
       </div>
     </div>
-
-    <!-- Products Grid -->
     <div class="custom-products-grid">
-      <app-card-producto
-      *ngFor="let prod of productos"
-       [producto]="prod"
-      [imagenUrl]="prod.ID_producto ? getImagenUrl(prod.ID_producto) : 'assets/images/no-image.png'">
-    </app-card-producto>
+      <div class="col-md-4" *ngFor="let producto of productos">
+        <app-card-producto [producto]="producto"(click)="onSelectProduct(producto)"></app-card-producto>
+      </div>
     </div>
   </div>
+  <div *ngIf="selectedProducto">
+    <app-content-detalle [producto]="selectedProducto" (volver)="selectedProducto = null"></app-content-detalle>
+  </div>
+
 </main>

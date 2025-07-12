@@ -1,0 +1,53 @@
+<!-- Botón Volver -->
+<div style="margin-bottom: 1rem;">
+  <button class="carousel-button" (click)="volverALista()">
+    ← Volver al catálogo
+  </button>
+</div>
+<div class="detalle-wrapper">
+  <!-- Imagen grande -->
+  <div class="detalle-imagen">
+    <img [src]="producto.imagen" [alt]="producto.nombre" style="max-width: 320px; border-radius: 12px; box-shadow: 0 4px 16px rgba(0,0,0,0.10);" />
+  </div>
+  <!-- Información del producto -->
+  <div class="detalle-info">
+    <h2 class="info-titulo" style="margin-bottom: 0.5rem;">{{ producto.nombre }}</h2>
+    <span class="badge" style="background:#f3f4f6;color:#333;padding:0.3em 0.8em;border-radius:1em;font-size:0.95em;margin-bottom:0.5em;">
+      {{ producto.marca }}
+    </span>
+    <p class="info-precio" style="font-size:1.5rem;color:#ff6a00;margin:0.5em 0 1em 0;">
+      S/ {{ producto.precioUnitario | number:'1.2-2' }}
+    </p>
+    <div style="margin-bottom:1em;">
+      <span style="font-weight:600;">Stock:</span>
+      <span [ngStyle]="{color: producto.stockMinimo > 0 ? '#16a34a' : '#dc2626'}">
+        {{ producto.stockMinimo > 0 ? producto.stockMinimo + ' disponibles' : 'Sin stock' }}
+      </span>
+    </div>
+    <div>
+      <span style="font-weight:600;">Especificaciones:</span>
+      <ul class="info-lista" style="margin-top:0.5em;">
+        <li *ngFor="let linea of producto.especificaciones.split('\n')">{{ linea }}</li>
+      </ul>
+    </div>
+  </div>
+
+  <!-- Cuadro de pedido -->
+  <div class="detalle-pedido">
+    <div class="pedido-card" style="box-shadow:0 2px 8px rgba(0,0,0,0.08);">
+      <h3 style="margin:0 0 0.5em 0;font-size:1.15rem;">Comprar</h3>
+      <label for="cantidad" style="font-weight:500;">Cantidad:</label>
+      <div class="pedido-cantidad" style="margin-bottom:1em;">
+        <button class="btn btn-outline-secondary" type="button" (click)="decrement()" aria-label="Restar cantidad">-</button>
+        <input id="cantidad" type="number" [(ngModel)]="cantidad" min="1" style="width:55px;text-align:center;font-size:1.1em;" />
+        <button class="btn btn-outline-secondary" type="button" (click)="cantidad = cantidad + 1" aria-label="Sumar cantidad">+</button>
+      </div>
+      <button class="btn-carrito" style="font-size:1.1em;" (click)="agregarAlCarrito()">
+        🛒 Añadir al carrito
+      </button>
+      <button class="btn-ir-carrito" style="font-size:1.1em;display:flex;align-items:center;justify-content:center;gap:0.5em;" (click)="irAlCarrito()">
+        <span style="font-size:1.3em;">🛍️</span> Ir al carrito
+      </button>
+    </div>
+  </div>
+</div>
