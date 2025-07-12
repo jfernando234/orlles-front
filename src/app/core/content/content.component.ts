@@ -28,7 +28,7 @@ export class ContentComponent implements OnInit {
   // Carousel
   currentSlide = 0;
   carouselTimer: any;
-
+  slideActual = 0;
   // Filters
   selectedPriceMin = 500;
   selectedPriceMax = 3000;
@@ -51,6 +51,27 @@ export class ContentComponent implements OnInit {
     { id: 'macbook', name: 'MacBook', selected: false },
     { id: 'dell', name: 'Dell', selected: false }
   ];
+  imagenes = [
+    {
+      src: 'assets/images/1-4.png',
+      alt: 'Modelo 1',
+    },
+    {
+      src: 'assets/images/1-5.png',
+      alt: 'Modelo 2',
+
+    },
+    {
+      src: 'assets/images/2-4.png',
+      alt: 'Modelo 3',
+
+    },
+    {
+      src: 'assets/images/3-4.png',
+      alt: 'Modelo 4',
+    }
+  ];
+
   productos: IProducto[] = [];
   favorites: number[] = [];
   constructor(private productoService: ProductoService) {}
@@ -84,11 +105,11 @@ export class ContentComponent implements OnInit {
   }
 
   nextSlide() {
-    this.currentSlide = this.currentSlide === 1 ? 0 : 1;
+     this.slideActual = (this.slideActual + 1) % this.imagenes.length;
   }
 
   previousSlide() {
-    this.currentSlide = this.currentSlide === 0 ? 1 : 0;
+    this.slideActual = (this.slideActual - 1 + this.imagenes.length) % this.imagenes.length;
   }
 
   // Filter methods
@@ -99,40 +120,7 @@ export class ContentComponent implements OnInit {
   onBrandChange() {
 
   }
-  /*
-  applyFilters() {
-    let filtered = [...this.products];
 
-    // Filter by price
-    filtered = filtered.filter(product => {
-      const price = parseFloat(product.price.replace(',', ''));
-      return price >= this.selectedPriceMin && price <= this.selectedPriceMax;
-    });
-
-    // Filter by categories
-    const selectedCategories = this.categories
-      .filter(cat => cat.selected)
-      .map(cat => cat.id);
-
-    if (selectedCategories.length > 0) {
-      filtered = filtered.filter(product =>
-        selectedCategories.includes(product.category)
-      );
-    }
-
-    // Filter by brands
-    const selectedBrands = this.brands
-      .filter(brand => brand.selected)
-      .map(brand => brand.id);
-
-    if (selectedBrands.length > 0) {
-      filtered = filtered.filter(product =>
-        selectedBrands.includes(product.brand)
-      );
-    }
-
-    this.filteredProducts = filtered;
-  }*/
 
   // Product actions
   onViewProduct(productId: number) {
@@ -165,9 +153,8 @@ export class ContentComponent implements OnInit {
   }
 
   onDiscover() {
-    console.log('Discover clicked');
+    console.log("Descubrir más sobre:", this.imagenes[this.slideActual]);
   }
-
   // Local storage methods
   private loadFavorites() {
     const stored = localStorage.getItem('favorites');
@@ -175,8 +162,8 @@ export class ContentComponent implements OnInit {
       this.favorites = JSON.parse(stored);
     }
   }
-
   private saveFavorites() {
     localStorage.setItem('favorites', JSON.stringify(this.favorites));
   }
+
 }
