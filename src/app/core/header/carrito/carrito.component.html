@@ -1,0 +1,748 @@
+  <div  class="modal-backdrop">
+    <div class="cart-modal-content">
+      <!-- Header del modal con título centrado -->
+      <div class="cart-modal-header">
+        <div class="header-title">
+          <h2>Carro ({{cartItems.length}} productos)</h2>
+        </div>
+        <button class="close-btn" (click)="closeCartModal()">&times;</button>
+      </div>
+        <div class="cart-modal-body">
+        <!-- Contenido principal del carrito -->
+        <div class="cart-main-content">
+          <div *ngIf="cartItems.length === 0" class="empty-cart">
+            <i class="fas fa-shopping-cart"></i>
+            <p>Tu carrito está vacío</p>
+            <p class="empty-subtitle">Agrega productos para continuar</p>
+          </div>
+
+          <div *ngIf="cartItems.length > 0" class="cart-content">
+            <!-- Selector todos -->
+            <div class="select-all">
+              <input type="checkbox" id="selectAll" [checked]="allSelected" (change)="toggleSelectAll()">
+              <label for="selectAll">Seleccionar todos</label>
+            </div>
+
+            <!-- Items del carrito sin paginación -->
+            <div class="cart-items-list">
+              <div *ngFor="let item of cartItems" class="cart-item">
+                <div class="item-checkbox">
+                  <input type="checkbox" [id]="'item-' + item.id" [checked]="item.selected" (change)="toggleItemSelection(item)">
+                </div>
+
+                <div class="item-image">
+                  <img [src]="item.imagen" [alt]="item.nombre">
+                </div>
+
+                <div class="item-details">
+                  <h4 class="item-title">{{item.nombre}}</h4>
+                  <p class="item-brand">APPLE</p>
+                  <p class="item-color">Color: <span class="color-value">{{item.color || 'Azul'}}</span></p>
+                </div>
+
+                <div class="item-pricing">
+                  <div class="price-section">
+                    <!-- <div class="discount-badge" *ngIf="item.descuento">-{{item.descuento}}%</div> -->
+                    <div class="current-price">S/ {{item.precio | number:'1.0-0'}}</div>
+                    <div class="original-price" *ngIf="item.precioOriginal">S/ {{item.precioOriginal | number:'1.0-0'}}</div>
+                  </div>
+
+                  <div class="quantity-controls">
+                    <button class="qty-btn" (click)="decrementQty(item)" [disabled]="item.cantidad <= 1">-</button>
+                    <span class="quantity">{{item.cantidad}}</span>
+                    <button class="qty-btn" (click)="incrementQty(item)" [disabled]="item.cantidad >= 10">+</button>
+                  </div>
+
+                  <div class="max-quantity">Máx 10 unidades</div>
+                </div>
+
+                <div class="item-actions">
+                  <button class="remove-item-btn" (click)="removeItem(item)" title="Eliminar producto">
+                    <i class="fas fa-trash-alt"></i>
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resumen de la orden (lado derecho) -->
+        <div class="order-summary" *ngIf="cartItems.length > 0">
+          <h3>Resumen de la orden</h3>
+
+          <div class="summary-row">
+            <span>Productos ({{getSelectedItemsCount()}})</span>
+            <span>S/ {{subtotal | number:'1.0-0'}}</span>
+          </div>
+
+          <div class="summary-row discount">
+            <span>Descuentos ({{getSelectedItemsCount()}})</span>
+            <span class="discount-amount">- S/ {{getDiscountAmount() | number:'1.0-0'}}</span>
+          </div>
+
+          <div class="summary-divider"></div>
+
+          <div class="summary-row total">
+            <span><strong>Total:</strong></span>
+            <span><strong>S/ {{total | number:'1.0-0'}}</strong></span>
+          </div>
+
+          <!-- <div class="summary-row total-with-warranty">
+            <span><strong>Total con Imporllesinc:</strong></span>
+            <div class="warranty-total">
+              <span class="warranty-price">S/ {{totalWithWarranty | number:'1.0-0'}}</span>
+            </div>
+          </div> -->
+
+          <button class="checkout-btn" (click)="proceedToCheckout()" [disabled]="getSelectedItemsCount() === 0">
+            Continuar compra
+          </button>
+
+          <div class="payment-options">
+            <div class="yape-option">
+              <div class="payment-icon" style="background: #722f8f; border-radius: 4px; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center; color: white; font-size: 12px; font-weight: bold;">Y</div>
+              <span>¡Ahora puedes pagar tus compras con Yape!</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Modal de Checkout -->
+  <div *ngIf="showCheckoutModal" class="modal-backdrop">
+    <div class="checkout-modal-content">      <!-- Header del modal -->
+      <div class="checkout-modal-header">
+        <div class="header-title">
+          <h2>Resumen de la compra</h2>
+        </div>
+        <button class="close-btn" (click)="closeCheckoutModal()">&times;</button>
+      </div>
+
+      <div class="checkout-modal-body">
+        <!-- Contenido principal (lado izquierdo) -->
+        <div class="checkout-main-content">
+          <!-- Sección de dirección -->          <div class="address-section">
+            <div class="address-row">
+              <div class="address-icon">
+                <i class="fas fa-map-marker-alt"></i>
+              </div>
+              <div class="address-content">
+                <span class="address-label">Dirección -</span>
+                <span class="address-text">{{deliveryAddress || '---, -----, -----, -----'}}</span>
+              </div>
+              <button class="change-address-btn" (click)="openAddressModal()">
+                <i class="fas fa-edit"></i>
+                {{ tieneDirecciones ? 'Cambiar' : 'Agregar' }}
+              </button>
+            </div>
+
+            <!-- Mostrar direcciones disponibles si las hay -->
+            <div *ngIf="tieneDirecciones && direcciones.length > 1" class="direcciones-disponibles">
+              <p class="direcciones-titulo">Otras direcciones disponibles:</p>
+              <div class="direcciones-lista">
+                <div *ngFor="let direccion of direcciones"
+                     class="direccion-item"
+                     [class.direccion-activa]="direccion.esPrincipal"
+                     (click)="seleccionarDireccion(direccion)">
+                  <i class="fas fa-map-marker-alt"></i>
+                  <span>{{ construirDireccionCompleta(direccion) }}</span>
+                  <span *ngIf="direccion.esPrincipal" class="badge-principal">Principal</span>
+                </div>
+              </div>
+            </div>
+
+            <!-- Mensaje si no tiene direcciones -->
+            <div *ngIf="!tieneDirecciones" class="no-direcciones">
+              <p class="mensaje-no-direcciones">
+                <i class="fas fa-info-circle"></i>
+                {{ mensajeDireccion || 'Aún no cuentas con dirección registrada' }}
+              </p>
+            </div>
+          </div>
+
+          <!-- Sección de tipo de entrega -->
+          <div class="delivery-section">
+            <h3>Elige un tipo de entrega</h3>
+
+            <!-- Opción: Retira tu pedido -->
+            <div class="delivery-option"
+                 [class.selected]="selectedDeliveryType === 'pickup'"
+                 (click)="selectDeliveryType('pickup')">
+              <div class="delivery-icon">
+                <i class="fas fa-store"></i>
+              </div>
+              <div class="delivery-details">
+                <h4>Retira tu pedido</h4>
+                <p>Elige tiendas cercanas disponibles en tu zona</p>
+                <!-- <button class="change-btn">Cambiar</button> -->
+              </div>
+            </div>
+
+            <!-- Opción: Envío Express -->
+            <div class="delivery-option"
+                 [class.selected]="selectedDeliveryType === 'express'"
+                 (click)="selectDeliveryType('express')">
+              <div class="delivery-icon">
+                <i class="fas fa-shipping-fast"></i>
+              </div>
+              <div class="delivery-details">
+                <h4>Envío Express</h4>
+                <p>Recibe tu pedido en pocas horas según</p>
+                <!-- <p class="unavailable">No disponible</p> -->
+                <!-- <p class="why-not">¿Por qué?</p> -->
+              </div>
+            </div>
+
+            <!-- Opción: Envío en fecha programada -->
+            <div class="delivery-option"
+                 [class.selected]="selectedDeliveryType === 'scheduled'"
+                 (click)="selectDeliveryType('scheduled')">
+              <div class="delivery-icon">
+                <i class="fas fa-calendar-alt"></i>
+              </div>
+              <div class="delivery-details">
+                <h4>Envío en fecha programada</h4>
+                <p>Programa el día exacto en que deseas recibir tu pedido</p>
+                <!-- <p class="unavailable">No disponible</p>
+                <p class="why-not">¿Por qué?</p> -->
+              </div>
+            </div>
+
+            <!-- Opción: Envío en rango de fechas -->
+            <div class="delivery-option"
+                 [class.selected]="selectedDeliveryType === 'range'"
+                 (click)="selectDeliveryType('range')">
+              <div class="delivery-icon">
+                <i class="fas fa-calendar-week"></i>
+              </div>
+              <div class="delivery-details">
+                <h4>Envío en rango de fechas</h4>
+                <p>Recibe tu pedido dentro de un rango de días según disponibilidad</p>
+                <!-- <p class="unavailable">No disponible</p>
+                <p class="why-not">¿Por qué?</p> -->
+              </div>
+            </div>
+          </div>
+        </div>
+          <!-- Resumen de la compra (lado derecho) -->
+        <div class="checkout-summary">
+          <h3>Resumen de la compra</h3>
+
+          <div class="summary-row">
+            <span>Productos ({{getSelectedItemsCount()}})</span>
+            <span>S/ {{subtotal | number:'1.0-0'}}</span>
+          </div>
+
+          <div class="summary-row discount" *ngIf="getDiscountAmount() > 0">
+            <span>Descuentos ({{getSelectedItemsCount()}})</span>
+            <span class="discount-amount">- S/ {{getDiscountAmount() | number:'1.0-0'}}</span>
+          </div>
+
+          <div class="summary-divider"></div>
+
+          <div class="summary-row total">
+            <span><strong>Total:</strong></span>
+            <div class="total-with-icons">
+              <span class="payment-icons">
+                <i class="fab fa-cc-mastercard"></i>
+                <i class="fab fa-cc-visa"></i>
+                <i class="fab fa-cc-amex"></i>
+              </span>
+              <span><strong>S/ {{total | number:'1.0-0'}}</strong></span>
+            </div>
+          </div>
+            <div class="modal-actions">
+            <button type="button" class="btn btn-back" (click)="goBackToCart()">
+              <i class="fas fa-arrow-left"></i>
+              Regresar al carrito
+            </button>
+            <button class="checkout-btn"
+                    (click)="proceedToPayment()"
+                    [disabled]="!selectedDeliveryType">
+              IR A PAGAR
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Pago -->
+  <div *ngIf="showPaymentModal" class="modal-backdrop">
+    <div class="payment-modal-content">
+      <!-- Header del modal -->
+      <div class="payment-modal-header">
+        <div class="header-title">
+          <h2>Agregar tarjeta</h2>
+        </div>
+        <button class="close-btn" (click)="closePaymentModal()">&times;</button>
+      </div>
+
+      <div class="payment-modal-body">
+        <!-- Contenido principal (lado izquierdo) -->
+        <div class="payment-main-content">
+          <!-- Sección de métodos de pago -->
+          <div class="payment-methods-section">
+
+
+            <!-- Tarjeta de crédito -->
+            <div class="payment-method"
+                 [class.selected]="selectedPaymentMethod === 'credit'"
+                 (click)="selectPaymentMethod('credit')">
+              <div class="payment-method-icon credit">
+                <i class="fas fa-credit-card"></i>
+              </div>
+              <div class="payment-method-details">
+                <span class="method-name">Tarjeta de crédito</span>
+              </div>
+            </div>
+
+
+            <!-- Tarjeta de débito -->
+            <div class="payment-method"
+                 [class.selected]="selectedPaymentMethod === 'debit'"
+                 (click)="selectPaymentMethod('debit')">
+              <div class="payment-method-icon debit">
+                <i class="fas fa-credit-card"></i>
+              </div>
+              <div class="payment-method-details">
+                <span class="method-name">Tarjeta de débito</span>
+              </div>
+            </div>            <!-- Gift Card -->
+            <div class="payment-method"
+                 [class.selected]="selectedPaymentMethod === 'gift-card'"
+                 (click)="selectPaymentMethod('gift-card')">
+              <div class="payment-method-icon gift-card">
+                <i class="fas fa-gift"></i>
+              </div>
+              <div class="payment-method-details">
+                <span class="method-name">Gift Card</span>
+              </div>
+            </div>
+          </div>
+
+          <!-- Otras opciones -->
+          <div class="other-options-section">
+            <h3>Otras opciones</h3>
+
+            <!-- Yape -->
+            <div class="payment-method"
+                 [class.selected]="selectedPaymentMethod === 'yape'"
+                 (click)="selectPaymentMethod('yape')">
+              <div class="payment-method-icon yape">
+                <span class="yape-badge">Y</span>
+              </div>
+              <div class="payment-method-details">
+                <span class="method-name">Yape</span>
+                <span class="new-badge">NUEVO</span>
+              </div>
+            </div>            <!-- Cupón de descuento -->
+            <div class="payment-method"
+                 [class.selected]="selectedPaymentMethod === 'coupon'"
+                 (click)="selectPaymentMethod('coupon')">
+              <div class="payment-method-icon coupon">
+                <i class="fas fa-percent"></i>
+              </div>
+              <div class="payment-method-details">
+                <span class="method-name">Cupón de descuento</span>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Resumen de la compra (lado derecho) -->
+        <div class="payment-summary">
+          <h3>Resumen de la compra</h3>
+
+          <div class="summary-row">
+            <span>Productos ({{getSelectedItemsCount()}})</span>
+            <span>S/ {{subtotal | number:'1.0-0'}}</span>
+            <button class="summary-toggle">
+              <i class="fas fa-chevron-down"></i>
+            </button>
+          </div>
+
+          <div class="summary-row discount" *ngIf="getDiscountAmount() > 0">
+            <span>Descuentos ({{getSelectedItemsCount()}})</span>
+            <span class="discount-amount">- S/ {{getDiscountAmount() | number:'1.0-0'}}</span>
+            <button class="summary-toggle">
+              <i class="fas fa-chevron-down"></i>
+            </button>
+          </div>
+
+          <div class="summary-row">
+            <span>Entregas (1)</span>
+            <span class="crossed-price">S/ 19</span>
+            <span class="free-text">Gratis</span>
+            <button class="summary-toggle">
+              <i class="fas fa-chevron-down"></i>
+            </button>
+          </div>
+
+          <div class="summary-divider"></div>
+
+          <div class="summary-row total">
+            <span><strong>Total:</strong></span>
+            <span><strong>S/ {{total | number:'1.0-0'}}</strong></span>
+          </div>
+
+          <div class="summary-row total-with-payment">
+            <span><strong>Total con Falabella:</strong></span>
+            <div class="total-payment-info">
+              <div class="payment-logos">
+                <i class="fab fa-cc-mastercard"></i>
+                <i class="fab fa-cc-visa"></i>
+              </div>
+              <span class="total-price"><strong>S/ {{getTotalWithPayment() | number:'1.0-0'}}</strong></span>
+            </div>          </div>
+            <div class="modal-actions">
+            <button type="button" class="btn btn-back" (click)="goBackToCheckout()">
+              <i class="fas fa-arrow-left"></i>
+              Regresar
+            </button>
+            <button class="continue-btn"
+                    [disabled]="!selectedPaymentMethod || !acceptedTerms"
+                    (click)="openPaymentDetailsModal()">
+              Continuar
+            </button>
+          </div>
+
+          <div class="need-invoice">
+            <span>¿Necesitas factura?</span>
+            <button class="request-btn">Solicitar</button>
+          </div>
+
+          <!-- Términos y condiciones -->
+          <div class="terms-section">
+            <div class="terms-checkbox">
+              <input type="checkbox" id="terms" [(ngModel)]="acceptedTerms">
+              <label for="terms">
+                Declaro que he leído y aceptado los
+                <a href="#" class="terms-link">términos y condiciones.</a>
+              </label>
+            </div>
+
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Detalles de Pago -->
+  <div *ngIf="showPaymentDetailsModal" class="modal-backdrop">
+    <div class="payment-details-modal-content">
+      <!-- Header del modal -->
+      <div class="payment-details-modal-header">
+        <div class="header-title">
+          <h2>{{getPaymentDetailsTitle()}}</h2>
+        </div>
+        <button class="close-btn" (click)="closePaymentDetailsModal()">&times;</button>
+      </div>
+
+      <div class="payment-details-modal-body">
+        <!-- Contenido principal -->
+        <div class="payment-details-content">
+
+          <!-- Formulario para Tarjeta de Crédito/Débito -->
+          <div *ngIf="selectedPaymentMethod === 'credit' || selectedPaymentMethod === 'debit'" class="card-form">
+            <div class="form-group">
+              <label for="cardNumber">Número de tarjeta</label>
+              <input type="text" id="cardNumber" class="form-control" placeholder="1234 5678 9012 3456"
+                     [(ngModel)]="cardDetails.number" maxlength="19" (input)="formatCardNumber($event)">
+            </div>
+
+            <div class="form-row">
+              <div class="form-group form-group-half">
+                <label for="expiryDate">Fecha de vencimiento</label>
+                <input type="text" id="expiryDate" class="form-control" placeholder="MM/AA"
+                       [(ngModel)]="cardDetails.expiry" maxlength="5" (input)="formatExpiryDate($event)">
+              </div>
+              <div class="form-group form-group-half">
+                <label for="cvv">CVV</label>
+                <input type="text" id="cvv" class="form-control" placeholder="123"
+                       [(ngModel)]="cardDetails.cvv" maxlength="4">
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label for="cardName">Nombre del titular</label>
+              <input type="text" id="cardName" class="form-control" placeholder="Nombre como aparece en la tarjeta"
+                     [(ngModel)]="cardDetails.name">
+            </div>
+          </div>
+
+          <!-- Formulario para Yape -->
+          <div *ngIf="selectedPaymentMethod === 'yape'" class="yape-form">
+            <div class="yape-instructions">
+              <div class="yape-logo">
+                <span class="yape-badge-large">Y</span>
+              </div>
+              <h3>Pagar con Yape</h3>
+              <p>Ingresa tu número de celular registrado en Yape</p>
+            </div>
+
+            <div class="form-group">
+              <label for="yapePhone">Número de celular</label>
+              <div class="phone-input-group">
+                <span class="country-code">+51</span>
+                <input type="tel" id="yapePhone" class="form-control phone-input"
+                       placeholder="912345678" [(ngModel)]="yapeDetails.phone" maxlength="9">
+              </div>
+            </div>
+          </div>
+
+          <!-- Formulario para Gift Card -->
+          <div *ngIf="selectedPaymentMethod === 'gift-card'" class="gift-card-form">
+            <div class="gift-card-instructions">
+              <div class="gift-card-icon">
+                <i class="fas fa-gift"></i>
+              </div>
+              <h3>Canjear Gift Card</h3>
+              <p>Ingresa el código de tu Gift Card</p>
+            </div>
+
+            <div class="form-group">
+              <label for="giftCardCode">Código de Gift Card</label>
+              <input type="text" id="giftCardCode" class="form-control" placeholder="XXXX-XXXX-XXXX-XXXX"
+                     [(ngModel)]="giftCardDetails.code" maxlength="19" (input)="formatGiftCardCode($event)">
+            </div>
+
+            <div class="form-group">
+              <label for="giftCardPin">PIN (opcional)</label>
+              <input type="password" id="giftCardPin" class="form-control" placeholder="1234"
+                     [(ngModel)]="giftCardDetails.pin" maxlength="6">
+            </div>
+          </div>
+
+          <!-- Formulario para Cupón de descuento -->
+          <div *ngIf="selectedPaymentMethod === 'coupon'" class="coupon-form">
+            <div class="coupon-instructions">
+              <div class="coupon-icon">
+                <i class="fas fa-percent"></i>
+              </div>
+              <h3>Aplicar cupón de descuento</h3>
+              <p>Ingresa tu código de descuento</p>
+            </div>
+
+            <div class="form-group">
+              <label for="couponCode">Código de cupón</label>
+              <input type="text" id="couponCode" class="form-control" placeholder="DESCUENTO20"
+                     [(ngModel)]="couponDetails.code" maxlength="20">
+            </div>
+          </div>
+        </div>
+
+        <!-- Resumen de la compra (lado derecho) -->
+        <div class="payment-details-summary">
+          <h3>Resumen de la compra</h3>
+
+          <div class="summary-row">
+            <span>Productos ({{getSelectedItemsCount()}})</span>
+            <span>S/ {{subtotal | number:'1.0-0'}}</span>
+          </div>
+
+          <div class="summary-row discount" *ngIf="getDiscountAmount() > 0">
+            <span>Descuentos ({{getSelectedItemsCount()}})</span>
+            <span class="discount-amount">- S/ {{getDiscountAmount() | number:'1.0-0'}}</span>
+          </div>
+
+          <div class="summary-row">
+            <span>Entrega</span>
+            <span class="free-text">Gratis</span>
+          </div>
+
+          <div class="summary-divider"></div>
+
+          <div class="summary-row total">
+            <span><strong>Total a pagar:</strong></span>
+            <span><strong>S/ {{getTotalWithPayment() | number:'1.0-0'}}</strong></span>
+          </div>
+            <div class="modal-actions">
+            <button type="button" class="btn btn-back" (click)="goBackToPaymentMethods()">
+              <i class="fas fa-arrow-left"></i>
+              Regresar
+            </button>
+            <button class="finalize-purchase-btn"
+                    [disabled]="!isPaymentFormValid()"
+                    (click)="finalizePurchase()">
+              Finalizar compra
+            </button>
+          </div>
+
+          <div class="security-info">
+            <i class="fas fa-shield-alt"></i>
+            <span>Tus datos están protegidos con encriptación SSL</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal de Compra Realizada -->
+  <div *ngIf="showPurchaseCompleteModal" class="modal-backdrop">
+    <div class="purchase-complete-modal-content">
+      <div class="purchase-complete-content">
+        <div class="success-icon">
+          <i class="fas fa-check-circle"></i>
+        </div>
+
+        <h2>¡Compra realizada con éxito!</h2>
+        <p class="success-message">Tu pedido ha sido procesado correctamente</p>
+
+        <div class="order-details">
+          <div class="order-number">
+            <span class="label">Número de pedido:</span>
+            <span class="value">#{{orderNumber}}</span>
+          </div>
+
+          <div class="order-total">
+            <span class="label">Total pagado:</span>
+            <span class="value">S/ {{getTotalWithPayment() | number:'1.0-0'}}</span>
+          </div>
+
+          <div class="payment-method-used">
+            <span class="label">Método de pago:</span>
+            <span class="value">{{getPaymentMethodName()}}</span>
+          </div>
+        </div>
+
+        <div class="delivery-info">
+          <h3>Información de entrega</h3>
+          <p><i class="fas fa-map-marker-alt"></i> {{deliveryAddress || 'Dirección no especificada'}}</p>
+          <p><i class="fas fa-clock"></i> Tiempo estimado: 2-3 días hábiles</p>
+        </div>
+
+        <div class="action-buttons">
+          <button class="btn btn-primary" (click)="continueShopping()">
+            Continuar comprando
+          </button>
+          <button class="btn btn-secondary" (click)="viewOrderDetails()">
+            Ver detalles del pedido
+          </button>
+        </div>
+      </div>
+    </div>
+  </div>
+  <!-- Modal para ingresar dirección -->
+  <div *ngIf="showAddressModal" class="modal-backdrop">
+    <div class="address-modal-content">
+      <!-- Header del modal -->
+      <div class="address-modal-header">
+        <div class="header-title">
+          <h2>Ingresa tu dirección</h2>
+        </div>
+        <button class="close-btn" (click)="closeAddressModal()">&times;</button>
+      </div>
+
+      <div class="address-modal-body">
+        <!-- Contenido principal -->
+        <div class="address-main-content">
+          <div class="address-intro">
+            <div class="address-intro-icon">
+              <i class="fas fa-map-marker-alt"></i>
+            </div>
+            <h3>Configura tu dirección de entrega</h3>
+            <p class="address-subtitle">Para ver las opciones de <strong>entrega</strong> y <strong>retiro</strong> disponibles en tu zona</p>
+          </div>
+
+          <form class="address-form">
+            <div class="form-group">
+              <label for="departamento">Departamento <span class="required">*</span></label>
+              <select id="departamento" class="form-control" [(ngModel)]="selectedDepartamento" (change)="onDepartamentoChange()" name="departamento">
+                <option value="">Selecciona un departamento</option>
+                <option *ngFor="let departamento of getDepartamentos()" [value]="departamento.value">{{departamento.name}}</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="provincia">Provincia <span class="required">*</span></label>
+              <select id="provincia" class="form-control" [(ngModel)]="selectedProvincia" (change)="onProvinciaChange()" [disabled]="!selectedDepartamento || provincias.length === 0" name="provincia">
+                <option value="">Selecciona una provincia</option>
+                <option *ngFor="let provincia of provincias" [value]="provincia.value">{{provincia.name}}</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="distrito">Distrito <span class="required">*</span></label>
+              <select id="distrito" class="form-control" [(ngModel)]="selectedDistrito" [disabled]="!selectedProvincia || distritos.length === 0" name="distrito">
+                <option value="">Selecciona un distrito</option>
+                <option *ngFor="let distrito of distritos" [value]="distrito.value">{{distrito.name}}</option>
+              </select>
+            </div>
+
+            <div class="form-group">
+              <label for="avenida">Avenida / Calle / Jirón <span class="required">*</span></label>
+              <input type="text" id="avenida" class="form-control" placeholder="Ej: Av. Javier Prado Este" [(ngModel)]="avenida" name="avenida">
+            </div>
+
+            <div class="form-group">
+              <label for="numero">Número <span class="required">*</span></label>
+              <input type="text" id="numero" class="form-control" placeholder="Ej: 123" [(ngModel)]="numero" name="numero">
+            </div>
+
+            <div class="form-group">
+              <label for="referencias">Referencia adicional</label>
+              <input type="text" id="referencias" class="form-control" placeholder="Ej: Dpto. 101, Piso 2, Cerca al parque" [(ngModel)]="referencias" name="referencias">
+              <small class="form-text">Información adicional para facilitar la entrega (opcional)</small>
+            </div>
+          </form>
+        </div>
+
+        <!-- Resumen de dirección (lado derecho) -->
+        <div class="address-summary">
+          <h3>Resumen de tu dirección</h3>
+
+          <div class="address-preview">
+            <div class="address-preview-icon">
+              <i class="fas fa-home"></i>
+            </div>
+            <div class="address-preview-content">
+              <div class="address-line" *ngIf="selectedDepartamento || selectedProvincia || selectedDistrito">
+                <strong>{{selectedDepartamentoName}}</strong>
+                <span *ngIf="selectedProvincia">, {{getSelectedProvinciaName()}}</span>
+                <span *ngIf="selectedDistrito">, {{getSelectedDistritoName()}}</span>
+              </div>
+              <div class="address-line" *ngIf="avenida || numero">
+                {{avenida}} {{numero}}
+              </div>
+              <div class="address-line" *ngIf="referencias">
+                {{referencias}}
+              </div>
+              <div class="address-placeholder" *ngIf="!selectedDepartamento && !selectedProvincia && !selectedDistrito && !avenida && !numero">
+                <i class="fas fa-map-marker-alt"></i>
+                <span>Completa los campos para ver tu dirección</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="delivery-options-preview">
+            <h4>Opciones disponibles:</h4>
+            <div class="option-item">
+              <i class="fas fa-truck"></i>
+              <span>Envío a domicilio</span>
+            </div>
+            <div class="option-item">
+              <i class="fas fa-store"></i>
+              <span>Recojo en tienda</span>
+            </div>
+            <div class="option-item">
+              <i class="fas fa-clock"></i>
+              <span>Entrega programada</span>
+            </div>
+          </div>
+
+          <div class="address-actions">
+            <button type="button" class="btn btn-back" (click)="goBackToCheckout()">
+              <i class="fas fa-arrow-left"></i>
+              Regresar
+            </button>
+            <button type="button" class="btn btn-primary"
+                    [disabled]="!isAddressFormValid()"
+                    (click)="confirmAddress()">
+              Confirmar dirección
+            </button>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>

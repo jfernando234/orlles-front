@@ -7,12 +7,13 @@ import { ProveedoresComponent } from './admin/proveedores/proveedores.component'
 import { ClientesComponent } from './admin/clientes/clientes.component';
 import { LoginComponent } from './auth/login/login.component';
 import { AuthGuard } from '../shared/guards/auth.guard';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
 
 const routes: Routes = [
   { path: '', redirectTo: 'home', pathMatch: 'full' },
   { path: 'home', component: HomeComponent },
   { path: 'login', component: LoginComponent },
-  { 
+  {
     path: 'admin',
     component: AdminComponent,
     canActivate: [AuthGuard],
@@ -23,7 +24,7 @@ const routes: Routes = [
       { path: '', redirectTo: 'producto', pathMatch: 'full' }
     ]
   },
-  { 
+  {
     path: 'admin-access',
     component: AdminComponent,
     children: [
@@ -39,7 +40,8 @@ const routes: Routes = [
 export { routes };
 
 @NgModule({
-  imports: [RouterModule.forRoot(routes)],
+  imports: [RouterModule.forRoot(routes)]
+  ,
   exports: [RouterModule]
 })
 export class AppRoutingModule { }

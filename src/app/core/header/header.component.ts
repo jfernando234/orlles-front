@@ -1,9 +1,14 @@
 import { Component, OnInit, inject } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-import { FormBuilder, FormGroup, Validators, ReactiveFormsModule, FormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
+import { FormBuilder, FormGroup, Validators,  FormsModule, AbstractControl, ValidationErrors } from '@angular/forms';
+
 import { AuthService } from '../../../shared/services/auth.service';
 import { DireccionesService, DireccionDTO, DireccionResponse } from '../../shared/services/direcciones.service';
 import { CommonModule } from '@angular/common';
+import { LoginComponent } from '../../auth/login/login.component';
+import { BrowserAnimationsModule } from '@angular/platform-browser/animations';
+import { MatDialog, MatDialogModule } from '@angular/material/dialog';
+import { MatButtonModule } from '@angular/material/button';
 
 export interface CartItem {
   id: number;
@@ -139,14 +144,14 @@ export class CustomValidators {
 @Component({
   selector: 'app-header',
   standalone: true,
-  imports: [CommonModule, ReactiveFormsModule, FormsModule, RouterModule],
+  imports: [CommonModule, FormsModule, RouterModule,MatDialogModule,MatButtonModule],
   templateUrl: './header.component.html',
   styleUrls: ['./header.component.css']
 })
 export class HeaderComponent implements OnInit {
   cartCount = 0;
   searchTerm = '';
-  showLoginModal = false;
+
   showRegisterModal = false;
   showCartModal = false;
   showCheckoutModal = false;
@@ -606,7 +611,7 @@ export class HeaderComponent implements OnInit {
   get igv(): number {
     return this.total * 0.18;
 
-  }  
+  }
 
   get total(): number {
     // El total es el subtotal menos los descuentos (sin IGV para este caso)
@@ -619,7 +624,7 @@ export class HeaderComponent implements OnInit {
   private authService = inject(AuthService);
   private direccionesService = inject(DireccionesService);
 
-  constructor() {
+  constructor(private dialog: MatDialog) {
     this.loginForm = this.fb.group({
       nombreUsuario: ['', Validators.required],
       contrasena: ['', Validators.required]
@@ -639,6 +644,7 @@ export class HeaderComponent implements OnInit {
     this.registerForm.get('tipoDocumento')?.valueChanges.subscribe(tipo => {
       this.updateDocumentValidation(tipo);
     });
+
   }
 
   updateDocumentValidation(tipoDocumento: string) {
@@ -702,8 +708,11 @@ export class HeaderComponent implements OnInit {
   }
 
   onLoginClick() {
-    console.log('aqui')
-    this.showLoginModal = true;
+
+     this.dialog.open(LoginComponent, {
+      width: '400px',
+      disableClose: true, // Opcional
+    });
   }
 
   onRegisterClick() {
@@ -720,11 +729,7 @@ export class HeaderComponent implements OnInit {
     console.log('Category clicked:', category);
   }
 
-  closeLoginModal() {
-    this.showLoginModal = false;
-    this.loginForm.reset();
-    this.error = null;
-  }
+
 
   closeRegisterModal() {
     this.showRegisterModal = false;
@@ -736,22 +741,7 @@ export class HeaderComponent implements OnInit {
     this.showCartModal = false;
   }
 
-  login() {
-    if (this.loginForm.valid) {
-      this.authService.login(this.loginForm.value).subscribe({
-        next: () => {
-          this.closeLoginModal();
-          this.checkAuthentication();
-          this.router.navigate(['/']);
-        },
-        error: () => {
-          this.error = 'Usuario o contraseña incorrectos';
-        }
-      });
-    } else {
-      this.error = 'Por favor, completa todos los campos';
-    }
-  }
+
 
   register() {
     if (this.registerForm.valid) {
@@ -768,7 +758,7 @@ export class HeaderComponent implements OnInit {
       this.authService.registrar(userData).subscribe({
         next: (response) => {
           this.closeRegisterModal();
-          this.showLoginModal = true;
+          ////this.showLoginModal = true;
         },
         error: (error) => {
           this.registerError = error.error?.message || 'Error al registrar usuario';
@@ -825,15 +815,7 @@ export class HeaderComponent implements OnInit {
     console.log('Recuperar contraseña');
   }
 
-  switchToLogin() {
-    this.closeRegisterModal();
-    this.showLoginModal = true;
-  }
 
-  switchToRegister() {
-    this.closeLoginModal();
-    this.showRegisterModal = true;
-  }
 
   // Métodos para filtrar entrada de datos
   onNameInput(event: Event, field: string) {
@@ -1168,7 +1150,7 @@ export class HeaderComponent implements OnInit {
   proceedToCheckout(): void {
     this.closeCartModal();
     this.showCheckoutModal = true;
-    
+
     // Cargar direcciones automáticamente al abrir checkout
     if (this.isAuthenticated) {
       console.log('Cargando direcciones para el checkout...');
@@ -1199,7 +1181,7 @@ export class HeaderComponent implements OnInit {
     if (!this.isAuthenticated) {
       return;
     }
-    
+
     console.log('Verificando direcciones del usuario...');
       this.direccionesService.verificarDirecciones().subscribe({
       next: (response: DireccionResponse) => {
@@ -1252,22 +1234,22 @@ export class HeaderComponent implements OnInit {
       alert('Debes estar autenticado para guardar una dirección');
       return;
     }
-    
+
     // Verificar que existe un token
     const token = localStorage.getItem('token');
     if (!token) {
       alert('No se encontró token de autenticación. Por favor, inicia sesión nuevamente.');
       return;
     }
-    
+
     console.log('Usuario autenticado:', this.isAuthenticated);
     console.log('Token presente:', !!token);
-    
+
     if (!this.isAddressFormValid()) {
       alert('Por favor completa todos los campos obligatorios');
       return;
     }
-    
+
     // Construir objeto dirección
     const nuevaDireccion: DireccionDTO = {
       direccion: this.construirDireccionDesdeForm(),
@@ -1279,7 +1261,7 @@ export class HeaderComponent implements OnInit {
       referencia: this.referencias,
       esPrincipal: !this.tieneDirecciones // Si es la primera, será principal
     };
-    
+
     console.log('Guardando dirección:', nuevaDireccion);
       this.direccionesService.crearDireccion(nuevaDireccion).subscribe({
       next: (response: DireccionResponse) => {
@@ -1287,19 +1269,19 @@ export class HeaderComponent implements OnInit {
           // Actualizar estado local
           this.direcciones.push(response.data as DireccionDTO);
           this.tieneDirecciones = true;
-          
+
           if (nuevaDireccion.esPrincipal) {
             this.direccionPrincipal = response.data as DireccionDTO;
             this.deliveryAddress = this.construirDireccionCompleta(response.data as DireccionDTO);
           }
-          
+
           this.mensajeDireccion = 'Dirección guardada correctamente';
-          
+
           // Cerrar modal
           this.closeAddressModal();
-          
+
           alert('Dirección guardada exitosamente');
-          
+
           // Recargar direcciones para actualizar el estado
           this.verificarDireccionesUsuario();
         } else {
@@ -1310,9 +1292,9 @@ export class HeaderComponent implements OnInit {
         console.error('Status:', error.status);
         console.error('Error message:', error.message);
         console.error('Error details:', error.error);
-        
+
         let errorMessage = 'Error al guardar la dirección.';
-        
+
         if (error.status === 403) {
           errorMessage = 'No tienes permisos para crear direcciones. Verifica tu autenticación.';
         } else if (error.status === 401) {
@@ -1320,16 +1302,16 @@ export class HeaderComponent implements OnInit {
         } else if (error.status === 0) {
           errorMessage = 'No se puede conectar al servidor. Verifica que el backend esté ejecutándose.';
         }
-        
+
         alert(errorMessage);
       }
     });
   }
-  
+
   // Cargar todas las direcciones del usuario
   cargarTodasLasDirecciones(): void {
     console.log('Cargando todas las direcciones del usuario...');
-    
+
     this.direccionesService.obtenerDirecciones().subscribe({
       next: (response: DireccionResponse) => {
         console.log('Respuesta todas las direcciones:', response);
@@ -1351,7 +1333,7 @@ export class HeaderComponent implements OnInit {
   // Construir dirección completa desde el formulario
   construirDireccionDesdeForm(): string {
     const partes = [];
-    
+
     if (this.avenida.trim()) {
       let direccionBase = this.avenida.trim();
       if (this.numero.trim()) {
@@ -1360,26 +1342,26 @@ export class HeaderComponent implements OnInit {
       partes.push(direccionBase);
 
     }
-    
+
     if (this.getSelectedDistritoName()) {
       partes.push(this.getSelectedDistritoName());
     }
-    
+
     if (this.getSelectedProvinciaName()) {
       partes.push(this.getSelectedProvinciaName());
     }
-    
+
     if (this.selectedDepartamento) {
       partes.push(this.selectedDepartamento);
     }
-    
+
     return partes.join(', ');
   }
-  
+
   // Construir dirección completa desde objeto DireccionDTO
   construirDireccionCompleta(direccion: DireccionDTO): string {
     const partes = [];
-    
+
     if (direccion.avenidaCalleJiron) {
       let direccionBase = direccion.avenidaCalleJiron;
       if (direccion.numero) {
@@ -1387,19 +1369,19 @@ export class HeaderComponent implements OnInit {
       }
       partes.push(direccionBase);
     }
-    
+
     if (direccion.distrito) {
       partes.push(direccion.distrito);
     }
-    
+
     if (direccion.provincia) {
       partes.push(direccion.provincia);
     }
-    
+
     if (direccion.departamento) {
       partes.push(direccion.departamento);
     }
-    
+
     return partes.join(', ');
   }
 
@@ -1407,19 +1389,19 @@ export class HeaderComponent implements OnInit {
   openAddressModal(): void {
     this.showAddressModal = true;
     this.limpiarFormularioDireccion();
-    
+
     // Si ya hay una dirección principal, cargar sus datos para edición
     if (this.direccionPrincipal) {
       this.cargarDireccionEnFormulario(this.direccionPrincipal);
     }
   }
-  
+
   // Cerrar modal de dirección
   closeAddressModal(): void {
     this.showAddressModal = false;
     this.limpiarFormularioDireccion();
   }
-  
+
   // Limpiar formulario de dirección
   limpiarFormularioDireccion(): void {
     this.selectedDepartamento = '';
@@ -1433,31 +1415,31 @@ export class HeaderComponent implements OnInit {
     this.numero = '';
     this.referencias = '';
   }
-  
+
   // Cargar dirección existente en el formulario para edición
   cargarDireccionEnFormulario(direccion: DireccionDTO): void {
     console.log('Cargando dirección en formulario:', direccion);
-    
+
     // Cargar departamento
     if (direccion.departamento) {
       this.selectedDepartamento = direccion.departamento.toLowerCase();
       this.onDepartamentoChange();
-      
+
       // Cargar provincia después de un pequeño delay para que se carguen las opciones
       setTimeout(() => {
         if (direccion.provincia) {
           // Buscar el valor correspondiente en las provincias
-          const provinciaEncontrada = this.provincias.find(p => 
+          const provinciaEncontrada = this.provincias.find(p =>
             p.name.toLowerCase() === direccion.provincia?.toLowerCase()
           );
           if (provinciaEncontrada) {
             this.selectedProvincia = provinciaEncontrada.value;
             this.onProvinciaChange();
-            
+
             // Cargar distrito después de otro delay
             setTimeout(() => {
               if (direccion.distrito) {
-                const distritoEncontrado = this.distritos.find(d => 
+                const distritoEncontrado = this.distritos.find(d =>
                   d.name.toLowerCase() === direccion.distrito?.toLowerCase()
                 );
                 if (distritoEncontrado) {
@@ -1470,7 +1452,7 @@ export class HeaderComponent implements OnInit {
       }, 100);
 
     }
-    
+
     // Cargar otros campos
     this.avenida = direccion.avenidaCalleJiron || '';
     this.numero = direccion.numero || '';
@@ -1681,7 +1663,7 @@ export class HeaderComponent implements OnInit {
     this.selectedDistrito = '';
     this.provincias = [];
     this.distritos = [];
-    
+
     if (this.selectedDepartamento && this.ubicacionesData[this.selectedDepartamento]) {
       const departamentoData = this.ubicacionesData[this.selectedDepartamento];
       this.provincias = Object.keys(departamentoData.provincias).map(key => ({
@@ -1694,7 +1676,7 @@ export class HeaderComponent implements OnInit {
   onProvinciaChange(): void {
     this.selectedDistrito = '';
     this.distritos = [];
-    
+
     if (this.selectedProvincia && this.selectedDepartamento) {
       const departamentoData = this.ubicacionesData[this.selectedDepartamento];
       if (departamentoData && departamentoData.provincias[this.selectedProvincia]) {
@@ -1741,9 +1723,9 @@ export class HeaderComponent implements OnInit {
     this.direccionPrincipal = direccion;
     this.deliveryAddress = this.construirDireccionCompleta(direccion);
     this.mensajeDireccion = 'Dirección seleccionada';
-    
+
     console.log('Dirección seleccionada:', direccion);
-    
+
     // Opcional: establecer como principal en el backend
     if (direccion.id && !direccion.esPrincipal) {
       this.establecerComoPrincipal(direccion.id);

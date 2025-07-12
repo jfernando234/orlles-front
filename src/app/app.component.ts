@@ -15,7 +15,7 @@ import { filter } from 'rxjs/operators';
     CommonModule,
     HeaderComponent,
     ContentComponent,
-    FooterComponent
+    FooterComponent,
   ],
   templateUrl: './app.component.html',
   styleUrls: ['./app.component.css']

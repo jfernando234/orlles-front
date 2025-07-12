@@ -1,0 +1,120 @@
+<!-- Register Modal-->
+  <div *ngIf="showRegisterModal" class="modal-backdrop">
+    <div class="modal-content">
+      <div class="modal-header text-center">
+        <img src="assets/images/logo.png" alt="Imporllesinc Logo" class="modal-logo">
+        <button class="close-btn" (click)="closeRegisterModal()">&times;</button>
+      </div>
+      <div class="modal-body">
+        <h2 class="login-title">Crear una cuenta</h2>
+        <form [formGroup]="registerForm" (ngSubmit)="register()">
+          <div class="form-group">
+            <label for="correoElectronico">Correo</label>
+            <input type="email" id="correoElectronico" formControlName="correoElectronico" class="form-control" placeholder="Ingresa un correo">
+            <div *ngIf="registerForm.get('correoElectronico')?.errors?.['required'] && registerForm.get('correoElectronico')?.touched" class="error-text">
+              Este campo es obligatorio
+            </div>
+            <div *ngIf="registerForm.get('correoElectronico')?.errors?.['email'] && registerForm.get('correoElectronico')?.touched" class="error-text">
+              Introduce un correo electrónico válido
+            </div>          </div>
+
+          <div class="form-row">
+            <div class="form-group form-group-half">
+              <label for="nombre">Nombre</label>
+              <input
+                type="text"
+                id="nombre"
+                formControlName="nombre"
+                class="form-control"
+                placeholder="Ingresa un nombre"
+                (input)="onNameInput($event, 'nombre')"
+                (keypress)="onKeyPress($event, 'nombre')">
+              <div *ngIf="getNameError('nombre')" class="error-text">
+                {{ getNameError('nombre') }}
+              </div>
+            </div>
+
+            <div class="form-group form-group-half">
+              <label for="apellidos">Apellidos</label>
+              <input
+                type="text"
+                id="apellidos"
+                formControlName="apellidos"
+                class="form-control"
+                placeholder="Ingresa apellidos"
+                (input)="onNameInput($event, 'apellidos')"
+                (keypress)="onKeyPress($event, 'apellidos')">
+              <div *ngIf="getNameError('apellidos')" class="error-text">
+                {{ getNameError('apellidos') }}
+              </div>
+            </div>
+          </div>
+            <div class="form-group">
+            <label for="tipoDocumento">Tipo de documento</label>
+            <div class="document-input-group">
+              <select id="tipoDocumento" formControlName="tipoDocumento" class="form-control document-select">
+                <option value="DNI">DNI</option>
+                <option value="CE">Carnet de Extranjería</option>
+                <option value="PASSPORT">Pasaporte</option>
+              </select>              <input
+                type="text"
+                formControlName="numeroDocumento"
+                class="form-control document-input"
+                [placeholder]="getDocumentPlaceholder()"
+                [maxlength]="getDocumentMaxLength()"
+                (input)="onDNIInput($event)"
+                (keypress)="onKeyPress($event, 'dni')">
+            </div>
+            <div *ngIf="getDNIError()" class="error-text">
+              {{ getDNIError() }}
+            </div>
+          </div>
+            <div class="form-group">
+            <label for="celular">Celular</label>
+            <div class="phone-input-group">
+              <span class="country-code">+51</span>
+              <input
+                type="tel"
+                id="celular"
+                formControlName="celular"
+                class="form-control phone-input"
+                placeholder="Ingresa un celular"
+                maxlength="9"
+                (input)="onPhoneInput($event)"
+                (keypress)="onKeyPress($event, 'celular')">
+            </div>
+            <div *ngIf="getPhoneError()" class="error-text">
+              {{ getPhoneError() }}
+            </div>
+          </div>
+            <div class="form-group">
+            <label for="contrasena-registro">Contraseña</label>
+            <input type="password" id="contrasena-registro" formControlName="contrasena" class="form-control" placeholder="Ingresa una contraseña">
+            <div *ngIf="getPasswordError()" class="error-text">
+              {{ getPasswordError() }}
+            </div>            <div class="password-requirements">
+              <small>La contraseña debe tener al menos:</small>
+              <ul>
+                <li>8 caracteres</li>
+                <li>Una letra mayúscula</li>
+                <li>Un número</li>
+                <li>Un carácter especial (!&#64;#$%^&*)</li>
+              </ul>
+            </div>
+          </div>
+
+          <div *ngIf="registerError" class="error-message">{{ registerError }}</div>
+
+          <div class="form-actions">
+            <button type="submit" class="submit-btn primary-btn" [disabled]="registerForm.invalid">Crear cuenta</button>
+          </div>
+
+          <div class="login-link">
+            ¿Ya tienes una cuenta? <a href="javascript:void(0)" (click)="switchToLogin()">Inicia sesión</a>
+          </div>
+
+          <button type="button" class="cancel-btn" (click)="closeRegisterModal()">Cerrar</button>
+        </form>
+      </div>
+    </div>
+  </div>
